@@ -1,132 +1,6 @@
 {
   "characters": [
     {
-      "id": 1,
-      "ilvl": "1740+",
-      "ign": "Decode",
-      "class": "Deathblade",
-      "static": "Decode"
-    },
-    {
-      "id": 2,
-      "ilvl": "1740+",
-      "ign": "Manipulatór",
-      "class": "Slayer",
-      "static": "Decode"
-    },
-    {
-      "id": 3,
-      "ilvl": "1730+",
-      "ign": "Slicedyou",
-      "class": "Souleater",
-      "static": "Decode"
-    },
-    {
-      "id": 4,
-      "ilvl": "1730+",
-      "ign": "Xarci",
-      "class": "Guardianknight",
-      "static": "Decode"
-    },
-    {
-      "id": 5,
-      "ilvl": "1730+",
-      "ign": "Rinru",
-      "class": "Sorceress",
-      "static": "Decode"
-    },
-    {
-      "id": 6,
-      "ilvl": "1730+",
-      "ign": "Icysister",
-      "class": "Souleater",
-      "static": "Decode"
-    },
-    {
-      "id": 7,
-      "ilvl": "1740+",
-      "ign": "Noticy",
-      "class": "Gunlancer",
-      "static": "Icy"
-    },
-    {
-      "id": 8,
-      "ilvl": "1730+",
-      "ign": "Bigicy",
-      "class": "Gunlancer",
-      "static": "Icy"
-    },
-    {
-      "id": 9,
-      "ilvl": "1730+",
-      "ign": "Notreallyicy",
-      "class": "Gunlancer",
-      "static": "Icy"
-    },
-    {
-      "id": 10,
-      "ilvl": "1730+",
-      "ign": "Noticyys",
-      "class": "Gunlancer",
-      "static": "Icy"
-    },
-    {
-      "id": 11,
-      "ilvl": "1730+",
-      "ign": "Hugeicy",
-      "class": "Gunlancer",
-      "static": "Icy"
-    },
-    {
-      "id": 12,
-      "ilvl": "1730+",
-      "ign": "Noticys",
-      "class": "Sorceress",
-      "static": "Icy"
-    },
-    {
-      "id": 13,
-      "ilvl": "1740+",
-      "ign": "Mayafern",
-      "class": "Bard",
-      "static": "Maya"
-    },
-    {
-      "id": 14,
-      "ilvl": "1730+",
-      "ign": "Auroranoire",
-      "class": "Bard",
-      "static": "Maya"
-    },
-    {
-      "id": 15,
-      "ilvl": "1730+",
-      "ign": "Auroratah",
-      "class": "Bard",
-      "static": "Maya"
-    },
-    {
-      "id": 16,
-      "ilvl": "1730+",
-      "ign": "Mayaflora",
-      "class": "Bard",
-      "static": "Maya"
-    },
-    {
-      "id": 17,
-      "ilvl": "1730+",
-      "ign": "Mayafauna",
-      "class": "Bard",
-      "static": "Maya"
-    },
-    {
-      "id": 18,
-      "ilvl": "1730+",
-      "ign": "Auroraverte",
-      "class": "Bard",
-      "static": "Maya"
-    },
-    {
       "id": 19,
       "ilvl": "1740+",
       "ign": "Miysu",
@@ -211,48 +85,6 @@
       "static": "nichi"
     },
     {
-      "id": 31,
-      "ilvl": "1740+",
-      "ign": "Vulii",
-      "class": "Deathblade",
-      "static": "Vuli"
-    },
-    {
-      "id": 32,
-      "ilvl": "1730+",
-      "ign": "Æëro",
-      "class": "Aeromancer",
-      "static": "Vuli"
-    },
-    {
-      "id": 33,
-      "ilvl": "1730+",
-      "ign": "Wuleye",
-      "class": "Deadeye",
-      "static": "Vuli"
-    },
-    {
-      "id": 34,
-      "ilvl": "1730+",
-      "ign": "Jeonhu",
-      "class": "Arcanist",
-      "static": "Vuli"
-    },
-    {
-      "id": 35,
-      "ilvl": "1720+",
-      "ign": "Nyriks",
-      "class": "Deathblade",
-      "static": "Vuli"
-    },
-    {
-      "id": 36,
-      "ilvl": "1720+",
-      "ign": "Vuliq",
-      "class": "Deathblade",
-      "static": "Vuli"
-    },
-    {
       "id": 37,
       "ilvl": "1740+",
       "ign": "Fleshrípped",
@@ -335,22 +167,15 @@
       "ign": "Astharothx",
       "class": "Shadowhunter",
       "static": "Erik"
-    },
-    {
-      "id": 49,
-      "ilvl": "1730+",
-      "ign": "Raidcaptain",
-      "class": "Bard",
-      "static": "Icy"
     }
   ],
   "assignments": {
     "Kazeros HM 1": [
       [
         null,
-        8,
-        31,
-        18
+        null,
+        null,
+        null
       ],
       [
         24,
@@ -361,10 +186,10 @@
     ],
     "Kazeros HM 2": [
       [
-        2,
-        8,
-        36,
-        14
+        null,
+        null,
+        null,
+        null
       ],
       [
         21,
@@ -375,10 +200,10 @@
     ],
     "Kazeros HM 3": [
       [
-        1,
-        11,
-        33,
-        15
+        null,
+        null,
+        null,
+        null
       ],
       [
         19,
@@ -389,10 +214,10 @@
     ],
     "Kazeros HM 4": [
       [
-        6,
-        32,
-        12,
-        18
+        null,
+        null,
+        null,
+        null
       ],
       [
         20,
@@ -403,10 +228,10 @@
     ],
     "Kazeros HM 5": [
       [
-        3,
-        10,
-        34,
-        17
+        null,
+        null,
+        null,
+        null
       ],
       [
         25,
@@ -417,10 +242,10 @@
     ],
     "Kazeros HM 6": [
       [
-        5,
-        9,
-        35,
-        16
+        null,
+        null,
+        null,
+        null
       ],
       [
         23,
