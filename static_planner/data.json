@@ -167,15 +167,183 @@
       "ign": "Astharothx",
       "class": "Shadowhunter",
       "static": "Erik"
+    },
+    {
+      "id": 49,
+      "ilvl": "1785",
+      "ign": "Frostfour",
+      "class": "Breaker",
+      "static": "Frost"
+    },
+    {
+      "id": 50,
+      "ilvl": "1750",
+      "ign": "Frostelight",
+      "class": "Paladin",
+      "static": "Frost"
+    },
+    {
+      "id": 51,
+      "ilvl": "1750",
+      "ign": "Frosthree",
+      "class": "Breaker",
+      "static": "Frost"
+    },
+    {
+      "id": 52,
+      "ilvl": "1750",
+      "ign": "Frostclone",
+      "class": "Breaker",
+      "static": "Frost"
+    },
+    {
+      "id": 53,
+      "ilvl": "1750",
+      "ign": "Frostwo",
+      "class": "Breaker",
+      "static": "Frost"
+    },
+    {
+      "id": 54,
+      "ilvl": "1735",
+      "ign": "Frostuno",
+      "class": "Breaker",
+      "static": "Frost"
+    },
+    {
+      "id": 55,
+      "ilvl": "1760",
+      "ign": "Àish",
+      "class": "Guardianknight",
+      "static": "Aish"
+    },
+    {
+      "id": 56,
+      "ilvl": "1760",
+      "ign": "Æïsh",
+      "class": "Valkyrie",
+      "static": "Aish"
+    },
+    {
+      "id": 57,
+      "ilvl": "1780",
+      "ign": "Aïsh",
+      "class": "Valkyrie",
+      "static": "Aish"
+    },
+    {
+      "id": 58,
+      "ilvl": "1760",
+      "ign": "Âish",
+      "class": "Souleater",
+      "static": "Aish"
+    },
+    {
+      "id": 59,
+      "ilvl": "1760",
+      "ign": "Aishyaya",
+      "class": "Artist",
+      "static": "Aish"
+    },
+    {
+      "id": 60,
+      "ilvl": "1735",
+      "ign": "Aishyrie",
+      "class": "Valkyrie",
+      "static": "Aish"
+    },
+    {
+      "id": 61,
+      "ilvl": "1780",
+      "ign": "Cheangiv",
+      "class": "Artillerist",
+      "static": "Cheangiv"
+    },
+    {
+      "id": 62,
+      "ilvl": "1760",
+      "ign": "Notcheangiv",
+      "class": "Breaker",
+      "static": "Cheangiv"
+    },
+    {
+      "id": 63,
+      "ilvl": "1760",
+      "ign": "Cheangartil",
+      "class": "Artillerist",
+      "static": "Cheangiv"
+    },
+    {
+      "id": 64,
+      "ilvl": "1760",
+      "ign": "Zenlong",
+      "class": "Striker",
+      "static": "Cheangiv"
+    },
+    {
+      "id": 65,
+      "ilvl": "1760",
+      "ign": "Cheangsharp",
+      "class": "Sharpshooter",
+      "static": "Cheangiv"
+    },
+    {
+      "id": 66,
+      "ilvl": "1740",
+      "ign": "Cheangmachine",
+      "class": "Machinist",
+      "static": "Cheangiv"
+    },
+    {
+      "id": 67,
+      "ilvl": "1775",
+      "ign": "Shizuuku",
+      "class": "Scrapper",
+      "static": "Shizu"
+    },
+    {
+      "id": 68,
+      "ilvl": "1750",
+      "ign": "Rurinami",
+      "class": "Glaivier",
+      "static": "Shizu"
+    },
+    {
+      "id": 69,
+      "ilvl": "1750",
+      "ign": "Biscince",
+      "class": "Berserker",
+      "static": "Shizu"
+    },
+    {
+      "id": 70,
+      "ilvl": "1750",
+      "ign": "Shizuvera",
+      "class": "Deathblade",
+      "static": "Shizu"
+    },
+    {
+      "id": 71,
+      "ilvl": "1750",
+      "ign": "Saifuyu",
+      "class": "Bard",
+      "static": "Shizu"
+    },
+    {
+      "id": 72,
+      "ilvl": "1750",
+      "ign": "Anevera",
+      "class": "Gunslinger",
+      "static": "Shizu"
     }
   ],
   "assignments": {
     "Kazeros HM 1": [
       [
-        null,
-        null,
-        null,
-        null
+        49,
+        70,
+        65,
+        56
       ],
       [
         24,
@@ -186,10 +354,10 @@
     ],
     "Kazeros HM 2": [
       [
-        null,
-        null,
-        null,
-        null
+        51,
+        61,
+        55,
+        71
       ],
       [
         21,
@@ -200,10 +368,10 @@
     ],
     "Kazeros HM 3": [
       [
-        null,
-        null,
-        null,
-        null
+        53,
+        63,
+        68,
+        60
       ],
       [
         19,
@@ -214,10 +382,10 @@
     ],
     "Kazeros HM 4": [
       [
-        null,
-        null,
-        null,
-        null
+        58,
+        72,
+        62,
+        50
       ],
       [
         20,
@@ -228,10 +396,10 @@
     ],
     "Kazeros HM 5": [
       [
-        null,
-        null,
-        null,
-        null
+        52,
+        69,
+        64,
+        57
       ],
       [
         25,
@@ -242,10 +410,10 @@
     ],
     "Kazeros HM 6": [
       [
-        null,
-        null,
-        null,
-        null
+        54,
+        67,
+        66,
+        59
       ],
       [
         23,
