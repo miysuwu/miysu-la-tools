@@ -68,7 +68,7 @@
   .reset-note b{ color: var(--muted); }
 
 
-  /* --- Navigation Icons --- */
+  /* --- Navigation Hamburger Menu --- */
   .top-nav {
     position: absolute;
     top: -10px;
@@ -77,26 +77,43 @@
     transform: translateX(-50%);
     z-index: 100;
   }
-  .nav-icons{
-    display: flex;
-    gap: 8px;
-  }
-  .nav-icon-btn{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 38px;
-    height: 38px;
-    border-radius: 9px;
+  .menu-btn {
     background: var(--panel);
     border: 1px solid var(--border);
-    overflow: hidden;
+    color: var(--text);
+    font-size: 18px;
+    padding: 6px 12px;
+    border-radius: 8px;
     cursor: pointer;
     transition: all 0.15s ease;
   }
-  .nav-icon-btn img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .nav-icon-btn:hover{ border-color: var(--muted-2); background: var(--panel-2); transform: translateY(-1px); }
-  .nav-icon-btn.active{ border-color: var(--pink); box-shadow: 0 0 0 1px var(--pink); }
+  .menu-btn:hover { border-color: var(--muted-2); background: var(--panel-2); }
+  .menu-dropdown {
+    display: none;
+    position: absolute;
+    top: 110%;
+    left: 0;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    min-width: 180px;
+    overflow: hidden;
+  }
+  .menu-dropdown.show { display: block; }
+  .menu-dropdown a {
+    display: block;
+    padding: 10px 16px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-soft);
+    transition: background 0.15s ease;
+  }
+  .menu-dropdown a:last-child { border-bottom: none; }
+  .menu-dropdown a:hover { background: var(--panel-2); color: var(--pink); }
+  .menu-dropdown a.active { color: var(--pink); }
 
   /* --- Tab nav --- */
   .tab-nav{
@@ -236,7 +253,7 @@
   @media (max-width: 980px){ .stat-row{ grid-template-columns:repeat(3,minmax(180px,1fr)); } }
   .stat-card.earned .stat-value{ color: var(--teal); }
   .stat-card.pending .stat-value{ color: var(--amber); }
-  .stat-card.total .stat-value{ color: var(--gold); }
+  .stat-card.total .stat-value{ color: var(--amber); }
 
   .char-grid{
     display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;
@@ -334,14 +351,15 @@
 <div class="wrap">
 
 
-  <!-- Page Navigation Icons -->
+  <!-- Hamburger Navigation Menu -->
   <div class="top-nav">
-    <nav class="nav-icons">
-      <a class="nav-icon-btn" href="../ark_core_odds" title="Ark Core Odds"><img src="../img/ArkCore.png" alt="Ark Core Odds"></a>
-      <a class="nav-icon-btn" href="../bid_calculator" title="Loot Bid Calc"><img src="../img/Relic_Book.webp" alt="Loot Bid Calc"></a>
-      <a class="nav-icon-btn" href="../static_planner" title="Static Planner"><img src="../img/boss.png" alt="Static Planner"></a>
-      <a class="nav-icon-btn active" href="../gold_tracker" title="Gold Tracker"><img src="../img/gold.webp" alt="Gold Tracker"></a>
-    </nav>
+    <button class="menu-btn" id="menuBtn" aria-label="Menü öffnen" aria-expanded="false">✦</button>
+    <div class="menu-dropdown" id="menuDropdown">
+      <a href="../gold_tracker" class="active">Gold Tracker</a>
+      <a href="../static_planner">Static Planner</a>
+      <a href="../bid_calculator">Loot Bid Calc</a>
+      <a href="../ark_core_odds">Ark Core Odds</a>
+    </div>
   </div>
 
   <header>
@@ -1156,6 +1174,30 @@ function initToolbarActions(){
 
 
 /* =========================================================
+   HAMBURGER NAVIGATION MENU
+   ========================================================= */
+function initMenu(){
+  const menuBtn = document.getElementById('menuBtn');
+  const menuDropdown = document.getElementById('menuDropdown');
+  if(!menuBtn || !menuDropdown) return;
+
+  menuBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = menuDropdown.classList.toggle('show');
+    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+
+  menuDropdown.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+
+  document.addEventListener('click', () => {
+    menuDropdown.classList.remove('show');
+    menuBtn.setAttribute('aria-expanded', 'false');
+  });
+}
+
+/* =========================================================
    INIT
    ========================================================= */
 function init(){
@@ -1170,6 +1212,7 @@ function init(){
   document.getElementById('btnAddChar').addEventListener('click', addCharacter);
 
   initTabs();
+  initMenu();
   initToolbarActions();
 
   checkReset(false);
