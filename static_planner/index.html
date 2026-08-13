@@ -495,7 +495,7 @@ function classIconHtml(className, variant){
   }
 
   const src = `${ICON_DIR}${encodeURIComponent(className)}.png`;
-  return `<span class="class-icon${sizeClass} has-image" style="background:${fallbackBg};" data-fallback-bg="${fallbackBg}" data-fallback-text="${escapeAttr(fallbackText)}">
+  return `<span class="class-icon${sizeClass} has-image" data-fallback-bg="${fallbackBg}" data-fallback-text="${escapeAttr(fallbackText)}">
     <img src="${src}" alt="${escapeAttr(className)}" loading="lazy" onerror="this.parentElement.classList.remove('has-image'); this.parentElement.style.background=this.parentElement.dataset.fallbackBg; this.parentElement.textContent=this.parentElement.dataset.fallbackText; this.remove();">
   </span>`;
 }
