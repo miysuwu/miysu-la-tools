@@ -569,6 +569,1236 @@ function classIconHtml(className, variant){
   }
 
   const src = `${ICON_DIR}${encodeURIComponent(className)}.png`;
+  return `<span class="class-icon${sizeClass} has-image" data-fallback-bg="${fallbackBg}" data-fallback-text="${escapeAttr(fallbackText)}">
+    <img src="${src}" alt="${escapeAttr(className)}" loading="lazy" onerror="this.parentElement.classList.remove('has-image'); this.parentElement.style.background=this.parentElement.dataset.fallbackBg; this.parentElement.textContent=this.parentElement.dataset.fallbackText; this.remove();">
+  </span>`;
+}
+
+function classOptionsHtml(selected){
+  return CLASS_LIST.map(c => `<option value="${c}" ${c===selected?'selected':''}>${c}</option>`).join('');
+}
+
+function escapeAttr(str){
+  return (str||'').toString().replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+}
+
+function formatGold(n){
+  n = Math.round(n || 0);
+  return n.toLocaleString('de-DE');
+}
+
+/* =========================================================
+   STATE
+   ========================================================= */
+let characters = [];   // { id, ilvl, ign, class, raidIds:[id,id,id] }
+let progress = {};     // { [charId]: { [raidId]: { cleared:bool, box:bool } } }
+let resetKey = null;
+let nextId = 1;
+
+function uid(){ return nextId++; }
+
+const HIGH_ILVL_THRESHOLD = 1750;
+const HIGH_ILVL_DEFAULT_RAID_IDS = [
+  'abyssal_dungeon_horizon_cathedral_level_3',
+  'shadow_raid_serca_nightmare',
+  'denouement_final_day_hard'
+];
+
+function defaultTop3(ilvl){
+  const parsed = parseInt(ilvl, 10);
+  if(!isNaN(parsed) && parsed >= HIGH_ILVL_THRESHOLD){
+    return HIGH_ILVL_DEFAULT_RAID_IDS.slice();
+  }
+  const maxIlvl = isNaN(parsed) ? Infinity : parsed;
+  const byRaid = {};
+  RAID_DATA.forEach(r => {
+    if(r.ilvl > maxIlvl) return; // char's ilvl too low to enter this difficulty
+    if(!byRaid[r.raid] || r.gold > byRaid[r.raid].gold) byRaid[r.raid] = r;
+  });
+  return Object.values(byRaid).sort((a,b) => b.gold - a.gold).slice(0,3).map(r => r.id);
+}
+
+function ensureProgress(charId){
+  if(!progress[charId]) progress[charId] = {};
+  return progress[charId];
+}
+
+function gateCount(r){
+  return (r && Array.isArray(r.gates) && r.gates.length) ? r.gates.length : 1;
+}
+
+function normalizeSlotState(r, raw){
+  const count = gateCount(r);
+  if(!raw) return { clearedGates:Array(count).fill(false), box:false };
+  let clearedGates = Array.isArray(raw.clearedGates) ? raw.clearedGates.slice(0,count) : null;
+  if(!clearedGates){
+    const legacy = !!raw.cleared;
+    clearedGates = Array(count).fill(legacy);
+  }
+  while(clearedGates.length < count) clearedGates.push(false);
+  return { clearedGates: clearedGates.map(Boolean), box:!!raw.box };
+}
+
+function getSlotState(charId, raidId){
+  const r = raidById[raidId];
+  const p = progress[charId];
+  return normalizeSlotState(r, p && p[raidId]);
+}
+
+function setSlotState(charId, raidId, patch){
+  const p = ensureProgress(charId);
+  const r = raidById[raidId];
+  const cur = getSlotState(charId, raidId);
+  p[raidId] = Object.assign({}, cur, patch);
+}
+
+/* =========================================================
+   WEEKLY RESET (Wednesday 09:00 local time)
+   ========================================================= */
+function computeResetKey(date){
+  const d = new Date(date);
+  const day = d.getDay(); // Sun=0 ... Wed=3
+  const diff = (day - 3 + 7) % 7;
+  const candidate = new Date(d.getFullYear(), d.getMonth(), d.getDate() - diff, 9, 0, 0, 0);
+  if(candidate.getTime() > d.getTime()){
+    candidate.setDate(candidate.getDate() - 7);
+  }
+  return candidate.getTime();
+}
+
+function checkReset(showMsg){
+  const current = computeResetKey(new Date());
+  if(resetKey === null){
+    resetKey = current;
+    saveState();
+    updateResetNote();
+    return;
+  }
+  if(current !== resetKey){
+    // wipe all cleared/box flags, keep characters & raid selections
+    Object.keys(progress).forEach(charId => { progress[charId] = {}; });
+    resetKey = current;
+    saveState();
+    if(showMsg) showToast('Weekly reset ・ resetting all checkboxes.');
+    renderHome();
+  }
+  updateResetNote();
+}
+
+function updateResetNote(){
+  const next = computeResetKey(new Date()) + 7*24*60*60*1000;
+  const now = Date.now();
+  const ms = next - now;
+  const totalMin = Math.max(0, Math.floor(ms/60000));
+  const d = Math.floor(totalMin/1440);
+  const h = Math.floor((totalMin%1440)/60);
+  const m = totalMin%60;
+  const el = document.getElementById('resetNote');
+  if(el){
+    el.innerHTML = `Next reset in <b>${d}T ${h}Std ${m}Min</b>`;
+  }
+}
+
+/* =========================================================
+   PERSISTENCE
+   ========================================================= */
+const STORAGE_KEY = 'lostark_raid_gold_helper_v1';
+
+function saveState(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ characters, progress, resetKey }));
+  }catch(err){
+    console.error('Could not save to localStorage', err);
+  }
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return false;
+    const data = JSON.parse(raw);
+    if(!Array.isArray(data.characters)) return false;
+    characters = data.characters;
+    nextId = characters.length ? Math.max(1, ...characters.map(c => c.id || 0)) + 1 : 1;
+    progress = (data.progress && typeof data.progress === 'object') ? data.progress : {};
+    resetKey = typeof data.resetKey === 'number' ? data.resetKey : null;
+    return true;
+  }catch(err){
+    console.error('Could not load from localStorage', err);
+    return false;
+  }
+}
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+let toastTimer = null;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+/* =========================================================
+   TABS
+   ========================================================= */
+function initTabs(){
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+}
+
+/* =========================================================
+   CLASS ICON HELPER
+   ========================================================= */
+function updateAddClassIcon(){
+  const val = document.getElementById('f_class').value;
+  document.getElementById('addClassIconWrap').innerHTML = classIconHtml(val);
+}
+
+/* =========================================================
+   RAID SELECT HELPERS
+   ========================================================= */
+function raidOptionsHtml(selectedId, excludedRaidNames){
+  const sorted = RAID_DATA; // exact order from the spreadsheet
+  return sorted.map(r => {
+    const isSelected = r.id === selectedId;
+    const isExcluded = excludedRaidNames.has(r.raid) && !isSelected;
+    if(isExcluded) return '';
+    return `<option value="${r.id}" ${isSelected?'selected':''}>${escapeAttr(r.shortName)} · ${escapeAttr(r.difficulty)} · ${r.ilvl}</option>`;
+  }).join('');
+}
+
+function raidSelectGroupHtml(char){
+  const raidIds = (char.raidIds && char.raidIds.length === 3) ? char.raidIds : defaultTop3(char.ilvl);
+  let html = '<div class="raid-select-group">';
+  for(let i=0;i<3;i++){
+    const selectedId = raidIds[i] || '';
+    const otherNames = new Set();
+    raidIds.forEach((rid, idx) => {
+      if(idx !== i && rid && raidById[rid]) otherNames.add(raidById[rid].raid);
+    });
+    html += `<div class="raid-setting-box">
+      <div class="raid-setting-label">Raid ${i+1}</div>
+      <select data-slot="${i}" class="raid-slot-select">
+        <option value="">— wählen —</option>
+        ${raidOptionsHtml(selectedId, otherNames)}
+      </select>
+    </div>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+/* =========================================================
+   CHARACTER TABLE (Settings)
+   ========================================================= */
+function getFilteredCharacters(){
+  const q = document.getElementById('charSearch').value.trim().toLowerCase();
+  if(!q) return characters;
+  return characters.filter(c =>
+    c.ign.toLowerCase().includes(q) ||
+    c.class.toLowerCase().includes(q) ||
+    (c.ilvl||'').toLowerCase().includes(q)
+  );
+}
+
+function renderCharacterTable(){
+  const body = document.getElementById('charTableBody');
+  const list = getFilteredCharacters();
+  document.getElementById('charCount').textContent = characters.length;
+
+  if(list.length === 0){
+    body.innerHTML = '';
+    document.getElementById('charEmptyState').style.display = 'block';
+    return;
+  }
+  document.getElementById('charEmptyState').style.display = 'none';
+
+  const sorted = [...list].sort((a,b) => {
+    const ai = parseInt(a.ilvl) || 0, bi = parseInt(b.ilvl) || 0;
+    if(bi !== ai) return bi - ai;
+    return a.ign.localeCompare(b.ign);
+  });
+
+  body.innerHTML = sorted.map(c => `
+    <tr data-id="${c.id}">
+      <td><input type="text" value="${escapeAttr(c.ilvl)}" data-field="ilvl" style="width:70px;"></td>
+      <td><input type="text" value="${escapeAttr(c.ign)}" data-field="ign" style="width:140px;"></td>
+      <td>
+        <div class="field-with-icon">
+          ${classIconHtml(c.class, 'small')}
+          <select data-field="class" style="width:150px;">${classOptionsHtml(c.class)}</select>
+        </div>
+      </td>
+      <td>${raidSelectGroupHtml(c)}</td>
+      <td class="row-actions">
+        <button class="btn btn-small btn-danger" data-action="delete">Löschen</button>
+      </td>
+    </tr>
+  `).join('');
+
+  body.querySelectorAll('tr').forEach(row => {
+    const id = parseInt(row.dataset.id, 10);
+
+    row.querySelectorAll('[data-field]').forEach(inp => {
+      inp.addEventListener('change', () => {
+        const c = characters.find(x => x.id === id);
+        if(!c) return;
+        c[inp.dataset.field] = inp.value;
+        renderCharacterTable();
+        renderHome();
+        saveState();
+      });
+    });
+
+    row.querySelectorAll('.raid-slot-select').forEach(sel => {
+      sel.addEventListener('change', () => {
+        const c = characters.find(x => x.id === id);
+        if(!c) return;
+        if(!c.raidIds || c.raidIds.length !== 3) c.raidIds = defaultTop3(c.ilvl);
+        const slot = parseInt(sel.dataset.slot, 10);
+        c.raidIds[slot] = sel.value || null;
+        // clean progress for raids no longer assigned
+        const p = ensureProgress(c.id);
+        Object.keys(p).forEach(rid => {
+          if(!c.raidIds.includes(rid)) delete p[rid];
+        });
+        renderCharacterTable();
+        renderHome();
+        saveState();
+      });
+    });
+
+    row.querySelector('[data-action="delete"]').addEventListener('click', () => {
+      deleteCharacter(id);
+    });
+  });
+}
+
+function addCharacter(){
+  const ilvl = document.getElementById('f_ilvl').value.trim();
+  const ign = document.getElementById('f_ign').value.trim();
+  const cls = document.getElementById('f_class').value;
+
+  if(!ign){
+    showToast('Bitte einen IGN eingeben');
+    return;
+  }
+
+  const id = uid();
+  characters.push({ id, ilvl, ign, class: cls, raidIds: defaultTop3(ilvl) });
+  ensureProgress(id);
+
+  document.getElementById('f_ilvl').value = '';
+  document.getElementById('f_ign').value = '';
+
+  renderCharacterTable();
+  renderHome();
+  saveState();
+  showToast(`${ign} hinzugefügt`);
+}
+
+function deleteCharacter(id){
+  const c = characters.find(x => x.id === id);
+  characters = characters.filter(x => x.id !== id);
+  delete progress[id];
+  renderCharacterTable();
+  renderHome();
+  saveState();
+  if(c) showToast(`${c.ign} gelöscht`);
+}
+
+/* =========================================================
+   HOME / OVERVIEW
+   ========================================================= */
+function addBreakdown(a, b){
+  a.gold += b.gold || 0;
+  a.rosterGold += b.rosterGold || 0;
+  a.charGold += b.charGold || 0;
+  return a;
+}
+
+function emptyBreakdown(){
+  return { gold:0, rosterGold:0, charGold:0 };
+}
+
+function gateReward(g){
+  return { gold:g.gold || 0, rosterGold:g.rosterGold || 0, charGold:g.charGold || 0 };
+}
+
+function deductBreakdown(b, cost){
+  let left = Math.max(0, cost || 0);
+  const fromGold = Math.min(b.gold, left); b.gold -= fromGold; left -= fromGold;
+  const fromRoster = Math.min(b.rosterGold, left); b.rosterGold -= fromRoster; left -= fromRoster;
+  const fromChar = Math.min(b.charGold, left); b.charGold -= fromChar; left -= fromChar;
+}
+
+function charBreakdown(c, includePending){
+  const p = progress[c.id] || {};
+  const earned = emptyBreakdown(), pending = emptyBreakdown();
+  (c.raidIds||[]).forEach(rid => {
+    if(!rid) return;
+    const r = raidById[rid];
+    if(!r) return;
+    const s = getSlotState(c.id, rid);
+    (r.gates || []).forEach((g, i) => {
+      if(s.clearedGates[i]){
+        addBreakdown(earned, gateReward(g));
+      }else if(includePending !== false){
+        addBreakdown(pending, gateReward(g));
+      }
+    });
+    if(s.box && s.clearedGates.every(Boolean)){
+      deductBreakdown(earned, r.chest || 0);
+    }
+  });
+  return { earned, pending };
+}
+
+function breakdownTotal(b){
+  return b.gold + b.rosterGold + b.charGold;
+}
+
+function charEarned(c){
+  return breakdownTotal(charBreakdown(c, false).earned);
+}
+
+function charPending(c){
+  return breakdownTotal(charBreakdown(c, true).pending);
+}
+
+function renderHome(){
+  const grid = document.getElementById('homeCharGrid');
+  const empty = document.getElementById('homeEmptyState');
+
+  if(characters.length === 0){
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+  } else {
+    empty.style.display = 'none';
+    const sorted = [...characters].sort((a,b) => (parseInt(b.ilvl)||0) - (parseInt(a.ilvl)||0));
+    grid.innerHTML = sorted.map(c => charCardHtml(c)).join('');
+  }
+
+  // totals
+  const totalEarned = emptyBreakdown(), totalPending = emptyBreakdown();
+  characters.forEach(c => {
+    const b = charBreakdown(c, true);
+    addBreakdown(totalEarned, b.earned);
+    addBreakdown(totalPending, b.pending);
+  });
+  const total = emptyBreakdown();
+  addBreakdown(total, totalEarned);
+  addBreakdown(total, totalPending);
+  document.getElementById('statEarned').innerHTML = goldValueHtml(breakdownTotal(totalEarned));
+  document.getElementById('statPending').innerHTML = goldValueHtml(breakdownTotal(totalPending));
+  document.getElementById('statTotal').innerHTML = goldValueHtml(breakdownTotal(total));
+  document.getElementById('statEarnedBreakdown').innerHTML = breakdownHtml(totalEarned);
+  document.getElementById('statPendingBreakdown').innerHTML = breakdownHtml(totalPending);
+  document.getElementById('statTotalBreakdown').innerHTML = breakdownHtml(total);
+
+  attachHomeListeners();
+}
+
+function breakdownHtml(b){
+  return `<span>Unbound <b>${formatGold(b.gold)}</b></span><span>Roster-bound <b>${formatGold(b.rosterGold)}</b></span><span>Char-bound <b>${formatGold(b.charGold)}</b></span>`;
+}
+
+function goldValueHtml(v){
+  return `<img class="gold-icon lg" src="${GOLD_ICON_SRC}" alt="gold">${formatGold(v)}`;
+}
+
+function charCardHtml(c){
+  const raidIds = (c.raidIds && c.raidIds.length === 3) ? c.raidIds : defaultTop3(c.ilvl);
+  const earned = charEarned(c);
+  return `
+  <div class="char-card" data-charid="${c.id}">
+    <div class="char-card-head">
+      ${classIconHtml(c.class, 'tile')}
+      <div class="name-block">
+        <div class="cname">${escapeAttr(c.ign) || 'Unbenannt'}${c.ign ? `<a class="armory-link" href="https://lostark.bible/character/CE/${encodeURIComponent(c.ign)}" target="_blank" rel="noopener noreferrer" title="Open ${escapeAttr(c.ign)} on lostark.bible" aria-label="Open ${escapeAttr(c.ign)} on lostark.bible"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M6.5 3H3.75A1.75 1.75 0 0 0 2 4.75v7.5A1.75 1.75 0 0 0 3.75 14h7.5A1.75 1.75 0 0 0 13 12.25V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M9 2h5v5M14 2 7.5 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>` : ''}</div>
+        <div class="csub">${escapeAttr(c.class) || '—'} · ${escapeAttr(c.ilvl) || '?'} ilvl</div>
+      </div>
+    </div>
+    <div class="char-card-sum">
+      <span>Earned</span>
+      <span class="val">${goldValueHtmlSmall(earned)}</span>
+    </div>
+    ${raidIds.map(rid => raidSlotHtml(c, rid)).join('')}
+  </div>`;
+}
+
+function goldValueHtmlSmall(v){
+  return `<img class="gold-icon" src="${GOLD_ICON_SRC}" alt="gold">${formatGold(v)}`;
+}
+
+function raidSlotHtml(c, rid){
+  if(!rid || !raidById[rid]){
+    return `<div class="raid-slot"><div class="raid-slot-name" style="color:var(--muted-2);">Choose a raid</div></div>`;
+  }
+  const r = raidById[rid];
+  const s = getSlotState(c.id, rid);
+  const dc = diffColorVar(r.difficulty);
+  const gates = r.gates || [{gold:r.gold || 0, rosterGold:0, charGold:0, chest:r.chest || 0}];
+  const gateTotal = gates.reduce((sum, g) => sum + (g.gold||0) + (g.rosterGold||0) + (g.charGold||0), 0);
+  const clearedCount = s.clearedGates.filter(Boolean).length;
+  const allCleared = clearedCount >= gates.length;
+  const partial = clearedCount > 0 && !allCleared;
+  const boxCost = (s.box && allCleared) ? (r.chest || 0) : 0;
+  const displayGold = Math.max(0, gateTotal - boxCost);
+
+  return `
+  <div class="raid-slot ${allCleared ? 'cleared' : ''}" data-action="toggle-cleared" data-char="${c.id}" data-raid="${rid}" role="button" tabindex="0" title="${clearedCount}/${gates.length} gates cleared">
+    <div class="raid-slot-top">
+      <span class="raid-slot-name">${escapeAttr(r.shortName)}</span>
+      <span class="raid-slot-diff" style="background:${dc.bg}; color:${dc.fg};">${escapeAttr(r.difficulty)}</span>
+    </div>
+    <div class="raid-slot-bottom">
+      <span class="raid-slot-gold">${goldValueHtmlSmall(displayGold)}</span>
+      <div class="raid-slot-actions">
+        ${r.chest && allCleared ? `<span class="check-btn compact box-btn ${s.box ? 'on' : ''}" data-action="toggle-box" data-char="${c.id}" data-raid="${rid}" title="Open box">
+          <span class="box"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.2 11.5L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          
+        </span>` : ''}
+        <span class="check-btn ${allCleared ? 'on' : ''} ${partial ? 'partial' : ''}" data-role="clear-indicator" style="grid-column:2;">
+          <span class="box"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5L6.2 11.5L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          Clear
+        </span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function attachHomeListeners(){
+  document.querySelectorAll('.raid-slot[data-action="toggle-cleared"]').forEach(el => {
+    const toggleClear = () => {
+      const charId = parseInt(el.dataset.char, 10);
+      const raidId = el.dataset.raid;
+      const r = raidById[raidId];
+      const s = getSlotState(charId, raidId);
+      const count = gateCount(r);
+      const clearedCount = s.clearedGates.filter(Boolean).length;
+      const nextCount = clearedCount >= count ? 0 : clearedCount + 1;
+      const next = Array(count).fill(false);
+      for(let i=0;i<nextCount;i++) next[i] = true;
+      setSlotState(charId, raidId, { clearedGates: next, box: nextCount === 0 ? false : s.box });
+      renderHome();
+      saveState();
+    };
+    el.addEventListener('click', (e) => {
+      if(e.target.closest('[data-action="toggle-box"]')) return;
+      toggleClear();
+    });
+    el.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleClear();
+      }
+    });
+  });
+
+  document.querySelectorAll('[data-action="toggle-box"]').forEach(el => {
+    el.addEventListener('click', () => {
+      if(el.classList.contains('disabled')) return;
+      const charId = parseInt(el.dataset.char, 10);
+      const raidId = el.dataset.raid;
+      const s = getSlotState(charId, raidId);
+      setSlotState(charId, raidId, { box: !s.box });
+      renderHome();
+      saveState();
+    });
+  });
+}
+
+/* =========================================================
+   IMPORT / EXPORT / CLEAR ALL
+   ========================================================= */
+function initToolbarActions(){
+  document.getElementById('btnExport').addEventListener('click', () => {
+    const data = { characters, progress, resetKey };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'raid_gold_helper_export.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('btnImportTrigger').addEventListener('click', () => {
+    document.getElementById('fileImport').click();
+  });
+
+  document.getElementById('fileImport').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try{
+        const data = JSON.parse(ev.target.result);
+        if(!Array.isArray(data.characters)) throw new Error('invalid');
+        characters = data.characters;
+        nextId = characters.length ? Math.max(1, ...characters.map(c => c.id || 0)) + 1 : 1;
+        progress = (data.progress && typeof data.progress === 'object') ? data.progress : {};
+        if(typeof data.resetKey === 'number') resetKey = data.resetKey;
+        renderCharacterTable();
+        renderHome();
+        saveState();
+        showToast('Import erfolgreich');
+      }catch(err){
+        showToast('Import fehlgeschlagen — ungültige Datei');
+      }
+      e.target.value = '';
+    };
+    reader.readAsText(file);
+  });
+
+  document.getElementById('btnClearAll').addEventListener('click', () => {
+    if(!confirm('Wirklich ALLE Charaktere löschen?')) return;
+    characters = [];
+    progress = {};
+    renderCharacterTable();
+    renderHome();
+    saveState();
+    showToast('Alle Charaktere gelöscht');
+  });
+}
+
+
+/* =========================================================
+   HAMBURGER NAVIGATION MENU
+   ========================================================= */
+function initMenu(){
+  const menuBtn = document.getElementById('menuBtn');
+  const menuDropdown = document.getElementById('menuDropdown');
+  if(!menuBtn || !menuDropdown) return;
+
+  menuBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const open = menuDropdown.classList.toggle('show');
+    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+
+  menuDropdown.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
+
+  document.addEventListener('click', () => {
+    menuDropdown.classList.remove('show');
+    menuBtn.setAttribute('aria-expanded', 'false');
+  });
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+function init(){
+  const restored = loadState();
+
+  const sel = document.getElementById('f_class');
+  sel.innerHTML = classOptionsHtml(CLASS_LIST[0]);
+  sel.addEventListener('change', updateAddClassIcon);
+  updateAddClassIcon();
+
+  document.getElementById('charSearch').addEventListener('input', renderCharacterTable);
+  document.getElementById('btnAddChar').addEventListener('click', addCharacter);
+
+  initTabs();
+  initMenu();
+  initToolbarActions();
+
+  checkReset(false);
+  renderCharacterTable();
+  renderHome();
+
+  setInterval(() => checkReset(true), 60000);
+  setInterval(updateResetNote, 30000);
+}
+
+document.addEventListener('DOMContentLoaded', init);
+
+</script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="icon.png">
+<title>Moonfall | gold tracker</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  :root{
+    --bg: #0a0a10;
+    --bg-grad: radial-gradient(1100px 550px at 50% -10%, #1a0f18 0%, #0a0a10 55%);
+    --panel: #131319;
+    --panel-2: #0d0d13;
+    --border: #262530;
+    --border-soft: #1c1b24;
+    --text: #eae9f2;
+    --muted: #8b8a9b;
+    --muted-2: #5c5b6b;
+    --pink: #ff4fa3;
+    --pink-soft: #7a3159;
+    --amber: #f5b942;
+    --amber-soft: #7a5e2a;
+    --teal: #3fe6c4;
+    --teal-soft: #1f6f5f;
+    --purple: #b98bff;
+    --purple-soft: #4a3170;
+    --coral: #ff6b5c;
+    --coral-soft: #7a3329;
+    --sky: #5cc8ff;
+    --sky-soft: #2a4f66;
+    --gold: #f5c542;
+    --gold-soft: #4a3d1a;
+    --danger: #ff5c5c;
+    --success: #3fe6c4;
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin:0;
+    background: var(--bg-grad), var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    padding: 44px 20px 70px;
+    min-height: 100vh;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .wrap{ max-width: 1560px; margin: 0 auto; position: relative; }
+
+  header{ margin-bottom: 8px; text-align: center; }
+  .eyebrow{
+    font-size: 11px; font-weight: 700;
+    letter-spacing: .16em; text-transform: uppercase;
+    color: var(--pink); margin-bottom: 10px;
+  }
+  h1{
+    font-size: clamp(24px, 3.6vw, 32px);
+    font-weight: 800;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+  .reset-note{
+    font-size: 12px; color: var(--muted-2); font-weight: 600;
+  }
+  .reset-note b{ color: var(--muted); }
+
+
+  /* --- Navigation Hamburger Menu --- */
+  .top-nav {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    width: min(1180px, calc(100% - 40px));
+    transform: translateX(-50%);
+    z-index: 100;
+  }
+  .menu-btn {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 18px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .menu-btn:hover { border-color: var(--muted-2); background: var(--panel-2); }
+  .menu-dropdown {
+    display: none;
+    position: absolute;
+    top: 110%;
+    left: 0;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    min-width: 180px;
+    overflow: hidden;
+  }
+  .menu-dropdown.show { display: block; }
+  .menu-dropdown a {
+    display: block;
+    padding: 10px 16px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-soft);
+    transition: background 0.15s ease;
+  }
+  .menu-dropdown a:last-child { border-bottom: none; }
+  .menu-dropdown a:hover { background: var(--panel-2); color: var(--pink); }
+  .menu-dropdown a.active { color: var(--pink); }
+
+  /* --- Tab nav --- */
+  .tab-nav{
+    display:flex; justify-content:center; gap: 10px; flex-wrap:wrap;
+    margin: 26px 0 26px;
+  }
+  .tab-btn{
+    font-family:'Inter', sans-serif;
+    background: var(--panel); border: 1px solid var(--border);
+    color: var(--muted); font-size: 13.5px; font-weight: 700;
+    padding: 11px 20px; border-radius: 999px; cursor:pointer;
+    letter-spacing:.01em; transition: all .15s ease;
+    display:flex; align-items:center; gap:8px;
+  }
+  .tab-btn .dot{ width:7px; height:7px; border-radius:50%; background: var(--muted-2); flex-shrink:0; }
+  .tab-btn:hover{ border-color: var(--muted-2); color: var(--text); }
+  .tab-btn.active{ background: var(--text); color: var(--bg); border-color: var(--text); }
+  .tab-btn.active .dot{ background: var(--bg); }
+  .tab-btn[data-accent="gold"].active{ background: var(--gold); border-color: var(--gold); color:#1c1608; }
+
+  .tab-panel{ display:none; }
+  .tab-panel.active{ display:block; }
+
+  /* --- generic card --- */
+  .card{
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px 24px;
+  }
+  .card + .card{ margin-top: 18px; }
+
+  .card-title{ font-size: 16px; font-weight: 700; margin: 0 0 3px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+  .card-title .rate{ font-weight: 800; font-size: 13px; padding: 3px 10px; border-radius:999px; }
+  .card-sub{ font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+
+  .divider{ height:1px; background: var(--border-soft); margin: 16px 0; }
+
+  /* --- toolbar --- */
+  .toolbar{
+    display:flex; align-items:center; justify-content:space-between; gap: 16px;
+    flex-wrap:wrap; margin-bottom: 18px;
+  }
+  .toolbar-actions{ display:flex; gap:10px; flex-wrap:wrap; }
+
+  button{ font-family:'Inter', sans-serif; }
+  .btn{
+    background: var(--panel-2); border: 1px solid var(--border);
+    color: var(--text); font-size: 12.5px; font-weight: 700;
+    padding: 9px 16px; border-radius: 999px; cursor:pointer;
+    transition: all .15s ease;
+  }
+  .btn:hover{ border-color: var(--muted-2); }
+  .btn-pink{ background: var(--pink); color:#180a12; border-color:var(--pink); }
+  .btn-pink:hover{ filter:brightness(1.08); }
+  .btn-gold{ background: var(--gold); color:#1c1608; border-color:var(--gold); }
+  .btn-gold:hover{ filter:brightness(1.08); }
+  .btn-ghost{ background:transparent; }
+  .btn-danger{ color: var(--danger); }
+  .btn-small{ padding: 6px 11px; font-size: 11.5px; border-radius:7px; }
+  .btn:disabled{ opacity:.4; cursor:not-allowed; }
+
+  input[type=text], input[type=number], input[type=file], select, textarea{
+    font-family: 'Inter', sans-serif;
+    background: var(--panel-2); border: 1px solid var(--border);
+    color: var(--text); font-size: 13px; padding: 8px 10px;
+    border-radius: 8px; outline:none; width:100%;
+  }
+  input[type=text]:focus, input[type=number]:focus, select:focus{ border-color: var(--muted-2); }
+  label{
+    display:block; font-size: 10.5px; font-weight: 600;
+    letter-spacing:.06em; text-transform:uppercase; color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  /* --- class icon badges --- */
+  .class-icon{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:36px; height:36px; border-radius:10px;
+    font-size:12px; font-weight:800; letter-spacing:.02em;
+    flex-shrink:0; color:#0a0a10; overflow:hidden;
+  }
+  .class-icon.small{ width:28px; height:28px; font-size:10.5px; border-radius:8px; }
+  .class-icon.tile{ width:44px; height:44px; font-size:14px; border-radius:10px; }
+  .class-icon.has-image{ background: var(--panel-2); padding:0; border:1px solid var(--border); }
+  .class-icon img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .field-with-icon{ display:flex; align-items:center; gap:8px; }
+  .field-with-icon select{ flex:1; }
+
+  /* --- gold icon --- */
+  .gold-icon{ width:18px; height:18px; vertical-align:-3px; margin-right:4px; flex-shrink:0; }
+  .gold-icon.lg{ width:26px; height:26px; vertical-align:-6px; margin-right:6px; }
+
+  /* --- Characters tab --- */
+  .add-form{ display:grid; grid-template-columns: 90px 1fr 1fr 1fr auto; gap: 10px; align-items:end; }
+  @media (max-width: 820px){ .add-form{ grid-template-columns: 1fr 1fr; } }
+
+  .char-table-wrap{ overflow-x:auto; margin-top:18px; }
+  table.char-table{ width:100%; border-collapse:collapse; font-size:13px; }
+  table.char-table th{
+    text-align:left; font-size: 10px; text-transform:uppercase; letter-spacing:.06em;
+    color: var(--muted-2); font-weight:700; padding: 8px 10px; border-bottom:1px solid var(--border);
+    white-space:nowrap;
+  }
+  table.char-table td{ padding: 7px 10px; border-bottom:1px solid var(--border-soft); vertical-align:middle; }
+  table.char-table tr:hover td{ background: rgba(255,255,255,0.02); }
+  table.char-table input[type=text]{ padding:6px 8px; font-size:12.5px; }
+  table.char-table select{ padding:6px 8px; font-size:12.5px; }
+  .row-actions{ display:flex; gap:6px; white-space:nowrap; }
+  .search-bar{ max-width: 320px; }
+
+  .raid-select-group{ display:grid; grid-template-columns:repeat(3,minmax(180px,1fr)); gap:8px; min-width:540px; }
+  .raid-setting-box{ background:var(--panel-2); border:1px solid var(--border-soft); border-radius:9px; padding:7px; }
+  .raid-setting-box .raid-setting-label{ font-size:9px; font-weight:800; color:var(--muted-2); text-transform:uppercase; letter-spacing:.06em; margin:0 0 5px 2px; }
+  .raid-select-group select{ font-size:11.5px; padding:7px 8px; }
+  @media (max-width: 900px){ .raid-select-group{ min-width:420px; grid-template-columns:1fr; } }
+  .raid-select-group select.invalid{ border-color: var(--danger); }
+
+  .empty-state{ text-align:center; color: var(--muted-2); font-size:13px; padding: 30px 10px; }
+
+  /* --- Home / overview --- */
+  .stat-row{
+    display:grid; grid-template-columns: repeat(3, minmax(220px, 300px)); justify-content:center; gap:14px; margin:0 auto 22px;
+  }
+  @media (max-width: 700px){ .stat-row{ grid-template-columns: 1fr; } }
+  .stat-card{
+    background: var(--panel); border:1px solid var(--border); border-radius:14px;
+    padding: 18px 20px;
+  }
+  .stat-card .stat-label{ font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color: var(--muted); margin-bottom:8px; }
+  .stat-card .stat-value{ font-size: 26px; font-weight:800; display:flex; align-items:center; }
+  .stat-breakdown{ margin-top:7px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap; font-size:9.5px; font-weight:700; color:var(--muted-2); }
+  .stat-breakdown span{ white-space:nowrap; }
+  .stat-breakdown b{ color:var(--muted); font-weight:800; }
+  .stat-card{ text-align:center; }
+  .stat-card .stat-value{ justify-content:center; }
+  @media (max-width: 980px){ .stat-row{ grid-template-columns:repeat(3,minmax(180px,1fr)); } }
+  .stat-card.earned .stat-value{ color: var(--teal); }
+  .stat-card.pending .stat-value{ color: var(--amber); }
+  .stat-card.total .stat-value{ color: var(--gold); }
+
+  .char-grid{
+    display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;
+    margin-bottom: 22px;
+  }
+  .char-card{
+    background: var(--panel); border:1px solid var(--border); border-radius:14px;
+    padding: 16px 16px 18px; display:flex; flex-direction:column; gap:12px;
+  }
+  .char-card-head{ display:flex; align-items:center; gap:10px; }
+  .char-card-head .name-block{ min-width:0; }
+  .char-card-head .cname{ font-size:14px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .armory-link{ margin-left:6px; width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; border:0; border-radius:4px; color:var(--muted); background:transparent; text-decoration:none; flex-shrink:0; vertical-align:middle; }
+  .armory-link:hover{ color:var(--sky); }
+  .armory-link svg{ width:14px; height:14px; }
+  .char-card-head .csub{ font-size:11px; color:var(--muted); font-weight:600; }
+  .char-card-sum{
+    display:flex; align-items:center; justify-content:space-between;
+    font-size:11.5px; font-weight:700; color: var(--muted);
+    background: var(--panel-2); border:1px solid var(--border-soft); border-radius:8px;
+    padding:6px 10px;
+  }
+  .char-card-sum .val{ color: var(--teal); display:flex; align-items:center; }
+
+  .raid-slot{
+    background:#0d0d13; border:1px solid var(--border-soft); border-radius:10px;
+    padding:10px 11px; display:flex; flex-direction:column; gap:7px;
+    transition: border-color .15s ease, background .15s ease;
+    user-select:none;
+    -webkit-user-select:none;
+    cursor:pointer;
+  }
+  .raid-slot.cleared{ border-color: var(--teal-soft); background: #0f1815; }
+  .raid-slot-top{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .raid-slot-name{ font-size:12.5px; font-weight:700; }
+  .raid-slot-diff{
+    font-size: 9.5px; font-weight:800; text-transform:uppercase; letter-spacing:.05em;
+    padding: 2px 7px; border-radius:999px; flex-shrink:0;
+  }
+  .raid-slot-gold{ font-size:12px; font-weight:700; color: var(--muted); display:flex; align-items:center; }
+  .raid-slot-bottom{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .raid-slot-actions{
+    display:grid;
+    grid-template-columns: auto auto;
+    align-items:center;
+    justify-content:end;
+    gap:6px;
+    margin-left:auto;
+  }
+  .raid-slot-actions .check-btn:empty{ visibility:hidden; }
+  .raid-gates{ display:flex; flex-direction:column; gap:5px; }
+  .raid-gate-row{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding-top:6px; border-top:1px solid var(--border-soft); }
+  .raid-gate-name{ font-size:10px; color:var(--muted-2); font-weight:800; min-width:44px; }
+  .raid-gate-actions{ display:flex; align-items:center; gap:5px; }
+  .check-btn.compact{ padding:4px 7px; gap:5px; font-size:10px; }
+  .check-btn.icon-only{ width:27px; height:27px; padding:0; justify-content:center; border-radius:7px; }
+  .check-btn.icon-only .box{ width:14px; height:14px; }
+  .raid-gate-gold{ font-size:10.5px; font-weight:700; color:var(--muted); margin-left:auto; display:flex; align-items:center; }
+
+  .check-btn{
+    display:flex; align-items:center; gap:6px; cursor:pointer; user-select:none;
+    font-size:11.5px; font-weight:700; color: var(--muted);
+    background: var(--panel-2); border:1px solid var(--border); border-radius:999px;
+    padding: 5px 11px 5px 8px; transition: all .15s ease;
+  }
+  .check-btn .box{
+    width:15px; height:15px; border-radius:5px; border:1.5px solid var(--muted-2);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; transition: all .15s ease;
+  }
+  .check-btn .box svg{ width:10px; height:10px; opacity:0; transition: opacity .1s ease; }
+  .check-btn.on{ color: var(--text); border-color: var(--teal-soft); background: rgba(63,230,196,0.08); }
+  .check-btn.on .box{ background: var(--teal-soft); border-color: var(--teal); color: var(--teal); }
+  .check-btn.on .box svg{ opacity:1; }
+  .check-btn.partial{ color: var(--text); border-color: var(--teal-soft); background: rgba(63,230,196,0.04); }
+  .check-btn.partial .box{ border-color: var(--teal); }
+  .check-btn.box-btn.on{ color: var(--text); border-color: var(--coral-soft); background: rgba(255,107,92,0.08); }
+  .check-btn.box-btn.on .box{ background: var(--coral-soft); border-color: var(--coral); color: var(--coral); }
+  .check-btn:hover{ border-color: var(--muted-2); }
+  .check-btn.disabled{ opacity:.35; cursor:not-allowed; pointer-events:none; }
+
+  footer{ text-align:center; color: var(--muted-2); font-size: 11.5px; margin-top: 30px; line-height:1.6; }
+  footer code{ color: var(--muted); }
+
+  .toast{
+    position: fixed; bottom: 26px; left:50%; transform: translateX(-50%) translateY(20px);
+    background: var(--panel); border:1px solid var(--border); color: var(--text);
+    padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight:600;
+    opacity:0; pointer-events:none; transition: all .25s ease; box-shadow: 0 10px 30px rgba(0,0,0,.4);
+    z-index: 999;
+  }
+  .toast.show{ opacity:1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+
+  <!-- Hamburger Navigation Menu -->
+  <div class="top-nav">
+    <button class="menu-btn" id="menuBtn" aria-label="Menü öffnen" aria-expanded="false">✦</button>
+    <div class="menu-dropdown" id="menuDropdown">
+      <a href="../gold_tracker" class="active">Gold Tracker</a>
+      <a href="../static_planner">Static Planner</a>
+      <a href="../bid_calculator">Loot Bid Calc</a>
+      <a href="../ark_core_odds">Ark Core Odds</a>
+    </div>
+  </div>
+
+  <header>
+    <div class="eyebrow">Moonfall ・ raid helper</div>
+    <h1>Gold Tracker</h1>
+    <div class="reset-note" id="resetNote">loading reset timer…</div>
+  </header>
+
+  <div class="tab-nav" id="tabNav">
+    <button class="tab-btn active" data-tab="home" data-accent="gold"><span class="dot"></span>Dashboard</button>
+    <button class="tab-btn" data-tab="settings"><span class="dot"></span>Settings</button>
+  </div>
+
+  <!-- HOME TAB -->
+  <div class="tab-panel active" id="panel-home">
+    <div class="char-grid" id="homeCharGrid"></div>
+    <div class="empty-state" id="homeEmptyState" style="display:none;">
+      No chars here. Go to <b>Settings</b> to add them.
+    </div>
+    <div class="stat-row">
+      <div class="stat-card earned">
+        <div class="stat-label">Earned</div>
+        <div class="stat-value" id="statEarned">0</div>
+        <div class="stat-breakdown" id="statEarnedBreakdown"></div>
+      </div>
+      <div class="stat-card pending">
+        <div class="stat-label">Open</div>
+        <div class="stat-value" id="statPending">0</div>
+        <div class="stat-breakdown" id="statPendingBreakdown"></div>
+      </div>
+      <div class="stat-card total">
+        <div class="stat-label">Total (this week)</div>
+        <div class="stat-value" id="statTotal">0</div>
+        <div class="stat-breakdown" id="statTotalBreakdown"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS TAB -->
+  <div class="tab-panel" id="panel-settings">
+
+    <div class="card">
+      <div class="card-title">Add character</div>
+      <div class="card-sub">Insert ilvl, IGN and class</div>
+      <div class="divider"></div>
+      <div class="add-form">
+        <div>
+          <label>Ilvl</label>
+          <input type="text" id="f_ilvl" placeholder="1740">
+        </div>
+        <div>
+          <label>IGN</label>
+          <input type="text" id="f_ign" placeholder="Character name">
+        </div>
+        <div>
+          <label>Class</label>
+          <div class="field-with-icon">
+            <span id="addClassIconWrap"></span>
+            <select id="f_class"></select>
+          </div>
+        </div>
+        <div></div>
+        <div>
+          <button class="btn btn-pink" id="btnAddChar">+ Add</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="toolbar">
+        <div>
+          <div class="card-title" style="margin-bottom:2px;">All characters <span class="rate" style="background:var(--panel-2); color:var(--muted); font-size:12px;" id="charCount">0</span></div>
+          <div class="card-sub" style="margin-bottom:0;">Choose up to 3 raids per character · Changes will be saved automatically</div>
+        </div>
+        <div class="toolbar-actions">
+          <input type="text" class="search-bar" id="charSearch" placeholder="Search for IGN or class…" style="min-width:220px;">
+          <button class="btn" id="btnExport">Export</button>
+          <button class="btn" id="btnImportTrigger">Import</button>
+          <input type="file" id="fileImport" accept="application/json" style="display:none;">
+          <button class="btn btn-danger" id="btnClearAll">Delete all</button>
+        </div>
+      </div>
+      <div class="char-table-wrap">
+        <table class="char-table" id="charTable">
+          <thead>
+            <tr>
+              <th>Ilvl</th>
+              <th>IGN</th>
+              <th>Class</th>
+              <th>Raids (3)</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="charTableBody"></tbody>
+        </table>
+      </div>
+      <div class="empty-state" id="charEmptyState" style="display:none;">No characters added.</div>
+    </div>
+
+  </div>
+
+  <footer>
+    All data is stored locally in your browser · no server, no sync -> use Export / Import<br>
+    <code>@meguyu · miysu-chan</code> · Weekly reset: <code>Wednesday 09:00am</code> (local time)
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const GOLD_ICON_SRC = "data:image/webp;base64,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";
+
+/* =========================================================
+   RAID DATA (parsed from provided spreadsheet)
+   ========================================================= */
+const RAID_DATA = [{"id":"abyssal_dungeon_horizon_cathedral_level_3","raid":"Abyssal Dungeon: Horizon Cathedral","difficulty":"Level 3","ilvl":1750,"gold":50000,"chest":16000,"tier":"Tier 4.1","shortName":"Horizon Cathedral","gates":[{"gold":0,"rosterGold":0,"charGold":20000,"chest":6400},{"gold":0,"rosterGold":0,"charGold":30000,"chest":9600}],"goldBreakdown":{"gold":0,"rosterGold":0,"charGold":50000.0}},{"id":"abyssal_dungeon_horizon_cathedral_level_2","raid":"Abyssal Dungeon: Horizon Cathedral","difficulty":"Level 2","ilvl":1720,"gold":40000,"chest":12800,"tier":"Tier 4","shortName":"Horizon Cathedral","gates":[{"gold":0,"rosterGold":0,"charGold":16000,"chest":5120},{"gold":0,"rosterGold":0,"charGold":24000,"chest":7680}],"goldBreakdown":{"gold":0,"rosterGold":0,"charGold":40000.0}},{"id":"abyssal_dungeon_horizon_cathedral_level_1","raid":"Abyssal Dungeon: Horizon Cathedral","difficulty":"Level 1","ilvl":1700,"gold":30000,"chest":9600,"tier":"Tier 4","shortName":"Horizon Cathedral","gates":[{"gold":0,"rosterGold":0,"charGold":13500,"chest":4320},{"gold":0,"rosterGold":0,"charGold":16500,"chest":5280}],"goldBreakdown":{"gold":0,"rosterGold":0,"charGold":30000.0}},{"id":"shadow_raid_serca_nightmare","raid":"Shadow Raid: Serca","difficulty":"Nightmare","ilvl":1740,"gold":54000,"chest":17280,"tier":"Tier 4.1","shortName":"Serca","gates":[{"gold":21000,"rosterGold":0,"charGold":0,"chest":6720},{"gold":33000,"rosterGold":0,"charGold":0,"chest":10560}],"goldBreakdown":{"gold":54000.0,"rosterGold":0,"charGold":0}},{"id":"shadow_raid_serca_hard","raid":"Shadow Raid: Serca","difficulty":"Hard","ilvl":1730,"gold":44000,"chest":14080,"tier":"Tier 4.1","shortName":"Serca","gates":[{"gold":17500,"rosterGold":0,"charGold":0,"chest":5600},{"gold":26500,"rosterGold":0,"charGold":0,"chest":8480}],"goldBreakdown":{"gold":44000.0,"rosterGold":0,"charGold":0}},{"id":"shadow_raid_serca_normal","raid":"Shadow Raid: Serca","difficulty":"Normal","ilvl":1710,"gold":35000,"chest":11200,"tier":"Tier 4","shortName":"Serca","gates":[{"gold":7000,"rosterGold":7000,"charGold":0,"chest":4480},{"gold":10500,"rosterGold":10500,"charGold":0,"chest":6720}],"goldBreakdown":{"gold":17500.0,"rosterGold":17500.0,"charGold":0}},{"id":"shadow_raid_serca_matching","raid":"Shadow Raid: Serca","difficulty":"Matching","ilvl":1710,"gold":35000,"chest":11200,"tier":"Tier 4","shortName":"Serca","gates":[{"gold":7000,"rosterGold":7000,"charGold":0,"chest":4480},{"gold":10500,"rosterGold":10500,"charGold":0,"chest":6720}],"goldBreakdown":{"gold":17500.0,"rosterGold":17500.0,"charGold":0}},{"id":"denouement_final_day_hard","raid":"Denouement: Kazeros","difficulty":"Hard","ilvl":1730,"gold":52000,"chest":16640,"tier":"Tier 4.1","shortName":"Kazeros","gates":[{"gold":17000,"rosterGold":0,"charGold":0,"chest":5440},{"gold":35000,"rosterGold":0,"charGold":0,"chest":11200}],"goldBreakdown":{"gold":52000.0,"rosterGold":0,"charGold":0}},{"id":"denouement_final_day_normal","raid":"Denouement: Kazeros","difficulty":"Normal","ilvl":1710,"gold":40000,"chest":12800,"tier":"Tier 4","shortName":"Kazeros","gates":[{"gold":7000,"rosterGold":7000,"charGold":0,"chest":4480},{"gold":13000,"rosterGold":13000,"charGold":0,"chest":8320}],"goldBreakdown":{"gold":20000.0,"rosterGold":20000.0,"charGold":0}},{"id":"denouement_final_day_solo","raid":"Denouement: Kazeros","difficulty":"Solo","ilvl":1710,"gold":40000,"chest":12800,"tier":"Tier 4","shortName":"Kazeros","gates":[{"gold":7000,"rosterGold":7000,"charGold":0,"chest":4480},{"gold":13000,"rosterGold":13000,"charGold":0,"chest":8320}],"goldBreakdown":{"gold":20000.0,"rosterGold":20000.0,"charGold":0}},{"id":"act_4_armoche_hard","raid":"Act 4: Armoche","difficulty":"Hard","ilvl":1720,"gold":42000,"chest":13440,"tier":"Tier 4","shortName":"Armoche","gates":[{"gold":15000,"rosterGold":0,"charGold":0,"chest":4800},{"gold":27000,"rosterGold":0,"charGold":0,"chest":8640}],"goldBreakdown":{"gold":42000.0,"rosterGold":0,"charGold":0}},{"id":"act_4_armoche_normal","raid":"Act 4: Armoche","difficulty":"Normal","ilvl":1700,"gold":33000,"chest":10560,"tier":"Tier 4","shortName":"Armoche","gates":[{"gold":6250,"rosterGold":6250,"charGold":0,"chest":4000},{"gold":10250,"rosterGold":10250,"charGold":0,"chest":6560}],"goldBreakdown":{"gold":16500.0,"rosterGold":16500.0,"charGold":0}},{"id":"act_4_armoche_solo","raid":"Act 4: Armoche","difficulty":"Solo","ilvl":1700,"gold":33000,"chest":10560,"tier":"Tier 4","shortName":"Armoche","gates":[{"gold":6250,"rosterGold":6250,"charGold":0,"chest":4000},{"gold":10250,"rosterGold":10250,"charGold":0,"chest":6560}],"goldBreakdown":{"gold":16500.0,"rosterGold":16500.0,"charGold":0}},{"id":"act_3_mordum_hard","raid":"Act 3: Mordum","difficulty":"Hard","ilvl":1700,"gold":27000,"chest":12600,"tier":"Tier 4","shortName":"Mordum","gates":[{"gold":2500,"rosterGold":2500,"charGold":0,"chest":2700},{"gold":4000,"rosterGold":4000,"charGold":0,"chest":4100},{"gold":7000,"rosterGold":7000,"charGold":0,"chest":5800}],"goldBreakdown":{"gold":13500.0,"rosterGold":13500.0,"charGold":0}},{"id":"act_3_mordum_normal","raid":"Act 3: Mordum","difficulty":"Normal","ilvl":1680,"gold":21000,"chest":9800,"tier":"Tier 4","shortName":"Mordum","gates":[{"gold":2000,"rosterGold":2000,"charGold":0,"chest":2400},{"gold":3500,"rosterGold":3500,"charGold":0,"chest":3200},{"gold":5000,"rosterGold":5000,"charGold":0,"chest":4200}],"goldBreakdown":{"gold":10500.0,"rosterGold":10500.0,"charGold":0}},{"id":"act_3_mordum_solo","raid":"Act 3: Mordum","difficulty":"Solo","ilvl":1680,"gold":21000,"chest":9800,"tier":"Tier 4","shortName":"Mordum","gates":[{"gold":2000,"rosterGold":2000,"charGold":0,"chest":2400},{"gold":3500,"rosterGold":3500,"charGold":0,"chest":3200},{"gold":5000,"rosterGold":5000,"charGold":0,"chest":4200}],"goldBreakdown":{"gold":10500.0,"rosterGold":10500.0,"charGold":0}},{"id":"act_2_brelshaza_hard","raid":"Act 2: Brelshaza","difficulty":"Hard","ilvl":1690,"gold":23000,"chest":7500,"tier":"Tier 4","shortName":"Brelshaza","gates":[{"gold":210,"rosterGold":970,"charGold":0,"chest":300},{"gold":220,"rosterGold":980,"charGold":0,"chest":300},{"gold":220,"rosterGold":1000,"charGold":0,"chest":300}],"goldBreakdown":{"gold":650.0,"rosterGold":2950.0,"charGold":0}},{"id":"act_2_brelshaza_normal","raid":"Act 2: Brelshaza","difficulty":"Normal","ilvl":1670,"gold":16500,"chest":5540,"tier":"Tier 4","shortName":"Brelshaza","gates":[{"gold":170,"rosterGold":810,"charGold":0,"chest":100},{"gold":180,"rosterGold":820,"charGold":0,"chest":150},{"gold":200,"rosterGold":820,"charGold":0,"chest":200}],"goldBreakdown":{"gold":550.0,"rosterGold":2450.0,"charGold":0}},{"id":"act_2_brelshaza_solo","raid":"Act 2: Brelshaza","difficulty":"Solo","ilvl":1670,"gold":16500,"chest":5540,"tier":"Tier 4","shortName":"Brelshaza","gates":[{"gold":0,"rosterGold":980,"charGold":0,"chest":100},{"gold":0,"rosterGold":1000,"charGold":0,"chest":150},{"gold":0,"rosterGold":1020,"charGold":0,"chest":200}],"goldBreakdown":{"gold":0,"rosterGold":3000.0,"charGold":0}},{"id":"act_1_aegir_hard","raid":"Act 1: Aegir","difficulty":"Hard","ilvl":1680,"gold":18000,"chest":5970,"tier":"Tier 4","shortName":"Aegir","gates":[{"gold":2750,"rosterGold":2750,"charGold":0,"chest":1820},{"gold":6250,"rosterGold":6250,"charGold":0,"chest":4150}],"goldBreakdown":{"gold":9000.0,"rosterGold":9000.0,"charGold":0}},{"id":"act_1_aegir_normal","raid":"Act 1: Aegir","difficulty":"Normal","ilvl":1660,"gold":11500,"chest":2530,"tier":"Tier 4","shortName":"Aegir","gates":[{"gold":1750,"rosterGold":1750,"charGold":0,"chest":750},{"gold":4000,"rosterGold":4000,"charGold":0,"chest":1780}],"goldBreakdown":{"gold":5750.0,"rosterGold":5750.0,"charGold":0}},{"id":"act_1_aegir_solo","raid":"Act 1: Aegir","difficulty":"Solo","ilvl":1660,"gold":11500,"chest":2530,"tier":"Tier 4","shortName":"Aegir","gates":[{"gold":1750,"rosterGold":1750,"charGold":0,"chest":750},{"gold":4000,"rosterGold":4000,"charGold":0,"chest":1780}],"goldBreakdown":{"gold":5750.0,"rosterGold":5750.0,"charGold":0}},{"id":"behemoth_normal","raid":"Behemoth","difficulty":"Normal","ilvl":1620,"gold":7200,"chest":3250,"tier":"Tier 4","shortName":"Behemoth","gates":[{"gold":1100,"rosterGold":1100,"charGold":0,"chest":1250},{"gold":2500,"rosterGold":2500,"charGold":0,"chest":2000}],"goldBreakdown":{"gold":3600.0,"rosterGold":3600.0,"charGold":0}},{"id":"overture_echidna_hard","raid":"Overture: Echidna","difficulty":"Hard","ilvl":1630,"gold":7200,"chest":2350,"tier":"Tier 4","shortName":"Echidna","gates":[{"gold":1100,"rosterGold":1100,"charGold":0,"chest":720},{"gold":2500,"rosterGold":2500,"charGold":0,"chest":1630}],"goldBreakdown":{"gold":3600.0,"rosterGold":3600.0,"charGold":0}},{"id":"overture_echidna_normal","raid":"Overture: Echidna","difficulty":"Normal","ilvl":1620,"gold":6100,"chest":1010,"tier":"Tier 4","shortName":"Echidna","gates":[{"gold":0,"rosterGold":1900,"charGold":0,"chest":310},{"gold":0,"rosterGold":4200,"charGold":0,"chest":700}],"goldBreakdown":{"gold":0,"rosterGold":6100.0,"charGold":0}},{"id":"overture_echidna_solo","raid":"Overture: Echidna","difficulty":"Solo","ilvl":1620,"gold":6100,"chest":1010,"tier":"Tier 4","shortName":"Echidna","gates":[{"gold":0,"rosterGold":1900,"charGold":0,"chest":310},{"gold":0,"rosterGold":4200,"charGold":0,"chest":700}],"goldBreakdown":{"gold":0,"rosterGold":6100.0,"charGold":0}},{"id":"thaemine_hard","raid":"Thaemine","difficulty":"Hard","ilvl":1620,"gold":13000,"chest":3250,"tier":"Tier 4","shortName":"Thaemine","gates":[{"gold":400,"rosterGold":1600,"charGold":0,"chest":500},{"gold":480,"rosterGold":1920,"charGold":0,"chest":600},{"gold":720,"rosterGold":2880,"charGold":0,"chest":900}],"goldBreakdown":{"gold":1600.0,"rosterGold":6400.0,"charGold":0}},{"id":"thaemine_normal","raid":"Thaemine","difficulty":"Normal","ilvl":1610,"gold":6400,"chest":1440,"tier":"Tier 3","shortName":"Thaemine","gates":[{"gold":320,"rosterGold":1280,"charGold":0,"chest":360},{"gold":400,"rosterGold":1600,"charGold":0,"chest":440},{"gold":560,"rosterGold":2240,"charGold":0,"chest":640}],"goldBreakdown":{"gold":1280.0,"rosterGold":5120.0,"charGold":0}},{"id":"thaemine_solo","raid":"Thaemine","difficulty":"Solo","ilvl":1610,"gold":6400,"chest":1440,"tier":"Tier 3","shortName":"Thaemine","gates":[{"gold":0,"rosterGold":1600,"charGold":0,"chest":360},{"gold":0,"rosterGold":2000,"charGold":0,"chest":440},{"gold":0,"rosterGold":2800,"charGold":0,"chest":640}],"goldBreakdown":{"gold":0,"rosterGold":6400.0,"charGold":0}},{"id":"ivory__tower_hard","raid":"Ivory  Tower","difficulty":"Hard","ilvl":1610,"gold":7200,"chest":1800,"tier":"Tier 3","shortName":"Ivory  Tower","gates":[{"gold":420,"rosterGold":1680,"charGold":0,"chest":350},{"gold":480,"rosterGold":1920,"charGold":0,"chest":500},{"gold":540,"rosterGold":2160,"charGold":0,"chest":950}],"goldBreakdown":{"gold":1440.0,"rosterGold":5760.0,"charGold":0}},{"id":"ivory__tower_normal","raid":"Ivory  Tower","difficulty":"Normal","ilvl":1600,"gold":5200,"chest":700,"tier":"Tier 3","shortName":"Ivory  Tower","gates":[{"gold":250,"rosterGold":1100,"charGold":0,"chest":180},{"gold":350,"rosterGold":1400,"charGold":0,"chest":220},{"gold":420,"rosterGold":1680,"charGold":0,"chest":300}],"goldBreakdown":{"gold":1020.0,"rosterGold":4180.0,"charGold":0}},{"id":"ivory__tower_solo","raid":"Ivory  Tower","difficulty":"Solo","ilvl":1600,"gold":5200,"chest":700,"tier":"Tier 3","shortName":"Ivory  Tower","gates":[{"gold":0,"rosterGold":1350,"charGold":0,"chest":180},{"gold":0,"rosterGold":1750,"charGold":0,"chest":220},{"gold":0,"rosterGold":2100,"charGold":0,"chest":300}],"goldBreakdown":{"gold":0,"rosterGold":5200.0,"charGold":0}},{"id":"akkan_hard","raid":"Akkan","difficulty":"Hard","ilvl":1600,"gold":6000,"chest":1500,"tier":"Tier 3","shortName":"Akkan","gates":[{"gold":200,"rosterGold":1300,"charGold":0,"chest":300},{"gold":410,"rosterGold":1640,"charGold":0,"chest":500},{"gold":490,"rosterGold":1960,"charGold":0,"chest":700}],"goldBreakdown":{"gold":1100.0,"rosterGold":4900.0,"charGold":0}},{"id":"akkan_normal","raid":"Akkan","difficulty":"Normal","ilvl":1580,"gold":4700,"chest":750,"tier":"Tier 3","shortName":"Akkan","gates":[{"gold":255,"rosterGold":1015,"charGold":0,"chest":190},{"gold":300,"rosterGold":1300,"charGold":0,"chest":230},{"gold":330,"rosterGold":1500,"charGold":0,"chest":330}],"goldBreakdown":{"gold":885.0,"rosterGold":3815.0,"charGold":0}},{"id":"akkan_solo","raid":"Akkan","difficulty":"Solo","ilvl":1580,"gold":4700,"chest":750,"tier":"Tier 3","shortName":"Akkan","gates":[{"gold":0,"rosterGold":1270,"charGold":0,"chest":190},{"gold":0,"rosterGold":1600,"charGold":0,"chest":230},{"gold":0,"rosterGold":1830,"charGold":0,"chest":330}],"goldBreakdown":{"gold":0,"rosterGold":4700.0,"charGold":0}},{"id":"kayangel_hard","raid":"Kayangel","difficulty":"Hard","ilvl":1580,"gold":4300,"chest":1075,"tier":"Tier 3","shortName":"Kayangel","gates":[{"gold":150,"rosterGold":1000,"charGold":0,"chest":225},{"gold":250,"rosterGold":1200,"charGold":0,"chest":350},{"gold":400,"rosterGold":1300,"charGold":0,"chest":500}],"goldBreakdown":{"gold":800.0,"rosterGold":3500.0,"charGold":0}},{"id":"kayangel_normal","raid":"Kayangel","difficulty":"Normal","ilvl":1540,"gold":3300,"chest":650,"tier":"Tier 3","shortName":"Kayangel","gates":[{"gold":100,"rosterGold":900,"charGold":0,"chest":180},{"gold":200,"rosterGold":900,"charGold":0,"chest":200},{"gold":300,"rosterGold":900,"charGold":0,"chest":270}],"goldBreakdown":{"gold":600.0,"rosterGold":2700.0,"charGold":0}},{"id":"kayangel_solo","raid":"Kayangel","difficulty":"Solo","ilvl":1540,"gold":3300,"chest":650,"tier":"Tier 3","shortName":"Kayangel","gates":[{"gold":0,"rosterGold":1000,"charGold":0,"chest":180},{"gold":0,"rosterGold":1100,"charGold":0,"chest":200},{"gold":0,"rosterGold":1200,"charGold":0,"chest":270}],"goldBreakdown":{"gold":0,"rosterGold":3300.0,"charGold":0}},{"id":"brelshaza_hard","raid":"Brelshaza","difficulty":"Hard","ilvl":1540,"gold":5600,"chest":1400,"tier":"Tier 3","shortName":"Brelshaza","gates":[{"gold":210,"rosterGold":970,"charGold":0,"chest":300},{"gold":220,"rosterGold":980,"charGold":0,"chest":300},{"gold":220,"rosterGold":1000,"charGold":0,"chest":300}],"goldBreakdown":{"gold":650.0,"rosterGold":2950.0,"charGold":0}},{"id":"brelshaza_normal","raid":"Brelshaza","difficulty":"Normal","ilvl":1490,"gold":4600,"chest":825,"tier":"Tier 3","shortName":"Brelshaza","gates":[{"gold":170,"rosterGold":810,"charGold":0,"chest":100},{"gold":180,"rosterGold":820,"charGold":0,"chest":150},{"gold":200,"rosterGold":820,"charGold":0,"chest":200}],"goldBreakdown":{"gold":550.0,"rosterGold":2450.0,"charGold":0}},{"id":"brelshaza_solo","raid":"Brelshaza","difficulty":"Solo","ilvl":1490,"gold":4600,"chest":825,"tier":"Tier 3","shortName":"Brelshaza","gates":[{"gold":0,"rosterGold":980,"charGold":0,"chest":100},{"gold":0,"rosterGold":1000,"charGold":0,"chest":150},{"gold":0,"rosterGold":1020,"charGold":0,"chest":200}],"goldBreakdown":{"gold":0,"rosterGold":3000.0,"charGold":0}},{"id":"kakul_saydon_normal","raid":"Kakul- Saydon","difficulty":"Normal","ilvl":1475,"gold":2000,"chest":450,"tier":"Tier 3","shortName":"Kakul- Saydon","gates":[{"gold":70,"rosterGold":330,"charGold":0,"chest":100},{"gold":100,"rosterGold":500,"charGold":0,"chest":150},{"gold":180,"rosterGold":820,"charGold":0,"chest":200}],"goldBreakdown":{"gold":350.0,"rosterGold":1650.0,"charGold":0}},{"id":"kakul_saydon_solo","raid":"Kakul- Saydon","difficulty":"Solo","ilvl":1475,"gold":2000,"chest":450,"tier":"Tier 3","shortName":"Kakul- Saydon","gates":[{"gold":0,"rosterGold":400,"charGold":0,"chest":100},{"gold":0,"rosterGold":600,"charGold":0,"chest":150},{"gold":0,"rosterGold":1000,"charGold":0,"chest":200}],"goldBreakdown":{"gold":0,"rosterGold":2000.0,"charGold":0}},{"id":"vykas_hard","raid":"Vykas","difficulty":"Hard","ilvl":1460,"gold":1500,"chest":600,"tier":"Tier 3","shortName":"Vykas","gates":[{"gold":80,"rosterGold":420,"charGold":0,"chest":225},{"gold":170,"rosterGold":830,"charGold":0,"chest":375}],"goldBreakdown":{"gold":250.0,"rosterGold":1250.0,"charGold":0}},{"id":"vykas_normal","raid":"Vykas","difficulty":"Normal","ilvl":1430,"gold":1000,"chest":250,"tier":"Tier 3","shortName":"Vykas","gates":[{"gold":50,"rosterGold":300,"charGold":0,"chest":100},{"gold":100,"rosterGold":550,"charGold":0,"chest":150}],"goldBreakdown":{"gold":150.0,"rosterGold":850.0,"charGold":0}},{"id":"vykas_solo","raid":"Vykas","difficulty":"Solo","ilvl":1430,"gold":1000,"chest":250,"tier":"Tier 3","shortName":"Vykas","gates":[{"gold":0,"rosterGold":350,"charGold":0,"chest":100},{"gold":0,"rosterGold":650,"charGold":0,"chest":150}],"goldBreakdown":{"gold":0,"rosterGold":1000.0,"charGold":0}},{"id":"valtan_hard","raid":"Valtan","difficulty":"Hard","ilvl":1445,"gold":1100,"chest":450,"tier":"Tier 3","shortName":"Valtan","gates":[{"gold":70,"rosterGold":330,"charGold":0,"chest":175},{"gold":130,"rosterGold":570,"charGold":0,"chest":275}],"goldBreakdown":{"gold":200.0,"rosterGold":900.0,"charGold":0}},{"id":"valtan_normal","raid":"Valtan","difficulty":"Normal","ilvl":1415,"gold":750,"chest":175,"tier":"Tier 3","shortName":"Valtan","gates":[{"gold":40,"rosterGold":250,"charGold":0,"chest":75},{"gold":60,"rosterGold":400,"charGold":0,"chest":100}],"goldBreakdown":{"gold":100.0,"rosterGold":650.0,"charGold":0}},{"id":"valtan_solo","raid":"Valtan","difficulty":"Solo","ilvl":1415,"gold":750,"chest":175,"tier":"Tier 3","shortName":"Valtan","gates":[{"gold":0,"rosterGold":290,"charGold":0,"chest":75},{"gold":0,"rosterGold":460,"charGold":0,"chest":100}],"goldBreakdown":{"gold":0,"rosterGold":750.0,"charGold":0}}];
+
+const raidById = {};
+RAID_DATA.forEach(r => raidById[r.id] = r);
+
+const DIFF_COLOR = {
+  'Level 3': 'pink', 'Level 2': 'pink', 'Level 1': 'pink',
+  'Nightmare': 'purple',
+  'Hard': 'sky',
+  'Normal': 'teal',
+  'Matching': 'amber',
+  'Solo': 'sky'
+};
+function diffColorVar(diff){
+  const key = DIFF_COLOR[diff] || 'muted';
+  return { bg: `var(--${key}-soft, var(--panel-2))`, fg: `var(--${key}, var(--muted))` };
+}
+
+/* =========================================================
+   CLASS DATA (carried over from static planner)
+   ========================================================= */
+const CLASS_LIST = [
+  'Aeromancer','Arcanist','Artillerist','Artist','Bard','Berserker','Breaker','Deadeye',
+  'Deathblade','Destroyer','Glaivier','Guardianknight','Gunlancer','Gunslinger','Machinist',
+  'Paladin','Reaper','Scrapper','Shadowhunter','Sharpshooter','Slayer','Sorceress','Soulfist',
+  'Souleater','Striker','Summoner','Valkyrie','Wardancer','Wildsoul'
+];
+
+const ROLE_COLORS = {
+  warrior: 'var(--coral)',
+  martial: 'var(--teal)',
+  gunner: 'var(--amber)',
+  mage: 'var(--purple)',
+  assassin: 'var(--pink)',
+  specialist: 'var(--sky)'
+};
+
+const CLASS_META = {
+  'Berserker':      { abbr: 'BS', role: 'warrior' },
+  'Paladin':        { abbr: 'PA', role: 'warrior' },
+  'Gunlancer':      { abbr: 'GN', role: 'warrior' },
+  'Guardianknight': { abbr: 'GK', role: 'warrior' },
+  'Destroyer':      { abbr: 'DS', role: 'warrior' },
+  'Slayer':         { abbr: 'SL', role: 'warrior' },
+  'Valkyrie':       { abbr: 'VK', role: 'warrior' },
+
+  'Striker':        { abbr: 'ST', role: 'martial' },
+  'Breaker':        { abbr: 'BR', role: 'martial' },
+  'Wardancer':      { abbr: 'WD', role: 'martial' },
+  'Scrapper':       { abbr: 'SC', role: 'martial' },
+  'Soulfist':       { abbr: 'SF', role: 'martial' },
+  'Glaivier':       { abbr: 'GL', role: 'martial' },
+
+  'Deadeye':        { abbr: 'DE', role: 'gunner' },
+  'Artillerist':    { abbr: 'AT', role: 'gunner' },
+  'Sharpshooter':   { abbr: 'SP', role: 'gunner' },
+  'Machinist':      { abbr: 'MC', role: 'gunner' },
+  'Gunslinger':     { abbr: 'GS', role: 'gunner' },
+
+  'Bard':           { abbr: 'BD', role: 'mage' },
+  'Sorceress':      { abbr: 'SO', role: 'mage' },
+  'Summoner':       { abbr: 'SM', role: 'mage' },
+  'Arcanist':       { abbr: 'AR', role: 'mage' },
+
+  'Shadowhunter':   { abbr: 'SH', role: 'assassin' },
+  'Deathblade':     { abbr: 'DB', role: 'assassin' },
+  'Souleater':      { abbr: 'SE', role: 'assassin' },
+  'Reaper':         { abbr: 'RP', role: 'assassin' },
+
+  'Artist':         { abbr: 'AS', role: 'specialist' },
+  'Aeromancer':     { abbr: 'AM', role: 'specialist' },
+  'Wildsoul':       { abbr: 'WS', role: 'specialist' }
+};
+
+/* Class icons are static files in the repo's icons/ folder (one level
+   up from this page, e.g. moonfall/icons/), named exactly after the
+   class, e.g. icons/Berserker.png. To change an icon, replace that
+   file in git — there is no in-app uploader. */
+const ICON_DIR = '../icons/';
+
+function classIconHtml(className, variant){
+  let sizeClass = '';
+  if(variant === 'small') sizeClass = ' small';
+  else if(variant === 'tile') sizeClass = ' tile';
+
+  const meta = CLASS_META[className];
+  const fallbackBg = meta ? ROLE_COLORS[meta.role] : 'var(--muted-2)';
+  const fallbackText = meta ? meta.abbr : '?';
+
+  if(!className){
+    return `<span class="class-icon${sizeClass}" style="background:${fallbackBg};">${fallbackText}</span>`;
+  }
+
+  const src = `${ICON_DIR}${encodeURIComponent(className)}.png`;
   return `<span class="class-icon${sizeClass} has-image" style="background:${fallbackBg};" data-fallback-bg="${fallbackBg}" data-fallback-text="${escapeAttr(fallbackText)}">
     <img src="${src}" alt="${escapeAttr(className)}" loading="lazy" onerror="this.parentElement.classList.remove('has-image'); this.parentElement.style.background=this.parentElement.dataset.fallbackBg; this.parentElement.textContent=this.parentElement.dataset.fallbackText; this.remove();">
   </span>`;
