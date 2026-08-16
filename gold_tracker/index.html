@@ -34,6 +34,8 @@
     --gold-soft: #4a3d1a;
     --danger: #ff5c5c;
     --success: #3fe6c4;
+    --silver: #c3c6d6;
+    --silver-soft: #45485c;
   }
 
   *{ box-sizing: border-box; }
@@ -234,6 +236,133 @@
 
   .empty-state{ text-align:center; color: var(--muted-2); font-size:13px; padding: 30px 10px; }
 
+  /* --- Rewards tab --- */
+  .reward-subnav{
+    display:flex; justify-content:center; gap:8px; margin: 0 0 20px;
+  }
+  .reward-subnav .tab-btn{ padding: 8px 16px; font-size: 12.5px; }
+
+  .reward-panel{ display:none; }
+  .reward-panel.active{ display:block; }
+
+  .paradise-nav-row{
+    display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; margin: 0 0 20px;
+  }
+  .paradise-subnav{ margin:0; }
+  .paradise-subnav .tab-btn{ padding: 6px 14px; font-size: 11.5px; }
+  .paradise-ilvl-select{
+    appearance:none; -webkit-appearance:none;
+    background: var(--panel); border:1px solid var(--border); color: var(--text);
+    font-size:11.5px; font-weight:700; padding: 7px 30px 7px 14px; border-radius:999px;
+    cursor:pointer;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path d='M2.5 4.5L6 8l3.5-3.5' stroke='%238b8a9b' stroke-width='1.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat; background-position: right 12px center; background-size: 10px;
+  }
+  .paradise-ilvl-select:hover{ border-color: var(--muted); }
+  .paradise-ilvl-select:focus{ outline:none; border-color: var(--gold); }
+
+  .reward-intro{
+    text-align:center; color: var(--muted); font-size:12.5px;
+    max-width: 640px; margin: 0 auto 22px; line-height:1.5;
+  }
+
+  .tier-block + .tier-block{ margin-top: 26px; }
+  .tier-block-title{
+    display:flex; align-items:center; gap:10px;
+    font-size: 12px; font-weight: 800; letter-spacing:.08em; text-transform:uppercase;
+    color: var(--muted); margin: 0 0 12px 2px;
+  }
+  .tier-block-title .line{ flex:1; height:1px; background: var(--border-soft); }
+
+  .cg-side-by-side{
+    display:grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items:start;
+  }
+  @media (max-width: 900px){
+    .cg-side-by-side{ grid-template-columns: 1fr; }
+  }
+  .cg-sub-title{
+    font-size: 12.5px; font-weight:700; margin: 0 0 8px; color: var(--text);
+  }
+
+  .reward-table-wrap{ overflow-x:auto; }
+  table.reward-table{ width:100%; border-collapse:collapse; font-size:12.5px; }
+  table.reward-table th{
+    text-align:left; font-size: 10px; text-transform:uppercase; letter-spacing:.05em;
+    color: var(--muted-2); font-weight:700; padding: 8px 10px; border-bottom:1px solid var(--border);
+    white-space:nowrap;
+  }
+  table.reward-table td{ padding: 8px 10px; border-bottom:1px solid var(--border-soft); vertical-align:middle; white-space:nowrap; }
+  table.reward-table tr:hover td{ background: rgba(255,255,255,0.02); }
+  table.reward-table tr.group-row td{
+    padding-top: 16px; font-size: 11px; font-weight:800; text-transform:uppercase;
+    letter-spacing:.05em; color: var(--muted); border-bottom:none;
+  }
+  table.reward-table tr.group-row:first-child td{ padding-top:8px; }
+  table.reward-table .num{ text-align:right; font-variant-numeric: tabular-nums; }
+  table.reward-table .zone-tag{ color: var(--muted); font-weight:600; }
+
+  .reward-note{ font-size:11px; color: var(--muted-2); margin-top:12px; line-height:1.5; }
+
+  .res-icon{ width:13px; height:13px; flex-shrink:0; }
+  .res-chip{ display:inline-flex; align-items:center; gap:4px; }
+  .res-chip .res-num{ font-variant-numeric: tabular-nums; display:inline-block; text-align:right; }
+  .res-chip .cell-empty{ display:inline-block; text-align:right; }
+
+  /* --- Paradise icon placeholders (shown if paradise-icons.json hasn't loaded yet, or lacks an icon) --- */
+  .paradise-icon-placeholder{
+    display:inline-block; border-radius:4px; background: var(--panel-2);
+    border:1px solid var(--border-soft);
+  }
+  .paradise-icon-placeholder[data-tint="sky"]{ background: var(--sky-soft); }
+  .paradise-icon-placeholder[data-tint="coral"]{ background: var(--coral-soft); }
+  .paradise-icon-placeholder[data-tint="amber"]{ background: var(--amber-soft); }
+  .paradise-icon-placeholder[data-tint="pink"]{ background: var(--pink-soft); }
+  .paradise-icon-placeholder[data-tint="purple"]{ background: var(--purple-soft); }
+  .paradise-icon-placeholder[data-tint="teal"]{ background: var(--teal-soft); }
+  .paradise-icon-placeholder[data-tint="muted"]{ background: var(--panel-2); }
+
+  .paradise-stack{ display:flex; flex-direction:column; gap:3px; align-items:flex-start; }
+  .paradise-stack-row{ line-height:1.2; }
+
+  /* --- overlapping icon cluster (column headers with multiple items) --- */
+  .icon-overlap{ position:relative; flex-shrink:0; }
+  .icon-overlap-item{ position:absolute; top:0; left:0; }
+  .icon-overlap-item .res-icon,
+  .icon-overlap-item .paradise-icon-placeholder{ width:13px; height:13px; margin:0; display:block; }
+  table.reward-table td.num:has(.res-chip){ text-align:left; }
+
+  /* --- Full excel-style raid table --- */
+  table.full-raid-table{ font-size:11px; border-collapse:separate; border-spacing:0; width:100%; }
+  table.full-raid-table.ft-wide{ min-width: 1350px; width:auto; }
+  table.full-raid-table th, table.full-raid-table td{ padding: 3px 5px; white-space:nowrap; line-height:1.3; }
+  table.full-raid-table thead tr.ft-group-row th{
+    background: var(--panel-2); color: var(--text); font-size:10px; text-transform:uppercase;
+    letter-spacing:.05em; text-align:center; border-bottom:1px solid var(--border); padding:4px 5px;
+  }
+  table.full-raid-table thead tr.ft-group-row th.ft-group-th{ border-left:1px solid var(--border-soft); }
+  table.full-raid-table thead tr:last-child th{
+    position: sticky; top:0; background: var(--panel); z-index:1; padding:5px 5px;
+  }
+  .ft-icon-th{ text-align:left !important; min-width:58px; }
+  .ft-icon-th .th-chip{ display:inline-flex; align-items:center; gap:4px; }
+  .ft-icon-th .th-chip img.res-icon{ margin:0; }
+  .ft-sep{ border-left:1px solid var(--border-soft); }
+  th.ft-sep{ border-left:1px solid var(--border-soft); }
+
+  table.full-raid-table td.ft-raid{ font-weight:700; font-size:11.5px; vertical-align:middle; border-right:1px solid var(--border-soft); white-space:normal; max-width:150px; }
+  table.full-raid-table td.ft-diff{ vertical-align:middle; }
+  table.full-raid-table td.ft-ilvl{ vertical-align:middle; color: var(--muted); font-weight:600; }
+  table.full-raid-table td.ft-gate{ color: var(--muted); font-weight:600; font-size:10.5px; }
+  tr.ft-total-row td.ft-gate{ color: var(--text); font-weight:800; }
+  tr.ft-total-row{ background: var(--panel-2); }
+  tr.ft-total-row td{ border-top:1px solid var(--border); border-bottom:2px solid var(--border); font-weight:700; }
+  .cell-empty{ color: var(--muted-2); opacity:.5; }
+
+  .rr-diff-badge{
+    font-size: 9.5px; font-weight: 800; padding: 2px 7px; border-radius:999px;
+    white-space:nowrap; display:inline-block;
+  }
+
   /* --- Home / overview --- */
   .stat-row{
     display:grid; grid-template-columns: repeat(3, minmax(220px, 300px)); justify-content:center; gap:14px; margin:0 auto 22px;
@@ -370,6 +499,7 @@
 
   <div class="tab-nav" id="tabNav">
     <button class="tab-btn active" data-tab="home" data-accent="gold"><span class="dot"></span>Dashboard</button>
+    <button class="tab-btn" data-tab="rewards"><span class="dot"></span>Rewards</button>
     <button class="tab-btn" data-tab="settings"><span class="dot"></span>Settings</button>
   </div>
 
@@ -395,6 +525,45 @@
         <div class="stat-value" id="statTotal">0</div>
         <div class="stat-breakdown" id="statTotalBreakdown"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- REWARDS TAB -->
+  <div class="tab-panel" id="panel-rewards">
+    
+    <div class="reward-subnav" id="rewardSubnav">
+      <button class="tab-btn active" data-reward-tab="raids" data-accent="gold"><span class="dot"></span>Raid Gold</button>
+      <button class="tab-btn" data-reward-tab="chaos"><span class="dot"></span>Chaos &amp; Guardian</button>
+      <button class="tab-btn" data-reward-tab="paradise"><span class="dot"></span>Hell</button>
+    </div>
+
+    <div class="reward-panel active" id="rewardpanel-raids">
+      <div id="raidRewardsWrap"></div>
+      <div class="reward-note">Table matches the source sheet: per-gate rows, then a bold Total row. "Clear rewards" = what you get for clearing each gate · "Bid" = the chest's material cost · "Chest rewards" = what the chest gives if you open it. Scroll sideways to see every column.</div>
+    </div>
+
+    <div class="reward-panel" id="rewardpanel-chaos">
+      <div id="chaosGuardianWrap"></div>
+    </div>
+
+    <div class="reward-panel" id="rewardpanel-paradise">
+      <div class="paradise-nav-row">
+        <div class="reward-subnav paradise-subnav" id="paradiseCategorySubnav">
+          <button class="tab-btn active" data-paradise-category="hell"><span class="dot"></span>Hell</button>
+          <button class="tab-btn" data-paradise-category="netherworld"><span class="dot"></span>Netherworld</button>
+        </div>
+        <div class="paradise-ilvl-wrap">
+          <select id="paradiseIlvlSelect" class="paradise-ilvl-select" aria-label="Item level">
+            <option value="1750">1750 ilvl</option>
+            <option value="1730">1730 ilvl</option>
+            <option value="1700">1700 ilvl</option>
+            <option value="1680">1680 ilvl</option>
+            <option value="1640">1640 ilvl</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="paradiseRewardsWrap"></div>
     </div>
   </div>
 
@@ -471,14 +640,320 @@
 
 <script>
 const GOLD_ICON_SRC = "data:image/webp;base64,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";
+const RES_ICON_DESTRUCTION_STONE = 'data:image/webp;base64,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';
+const RES_ICON_GUARDIAN_STONE = 'data:image/webp;base64,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';
+const RES_ICON_LEAPSTONE = 'data:image/webp;base64,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';
+const RES_ICON_SHARD = 'data:image/webp;base64,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';
+const RES_ICON_SILVER = 'data:image/webp;base64,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';
+const RES_ICON_ACCESSORY = 'data:image/webp;base64,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';
+const RES_ICON_GOLD = 'data:image/webp;base64,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';
+const RES_ICON_ROSTER_GOLD = 'data:image/webp;base64,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';
+const RES_ICON_CHAR_GOLD = 'data:image/webp;base64,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';
+const RES_ICON_MAIN_MATERIALS = 'data:image/webp;base64,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';
+const RES_ICON_CLEAR_MEDAL = 'data:image/webp;base64,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';
+const RES_ICON_DESTINY_STONE = 'data:image/webp;base64,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';
+const RES_ICON_CARD_PACK = 'data:image/webp;base64,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';
+const RES_ICON_GEMS = 'data:image/webp;base64,UklGRhIDAABXRUJQVlA4WAoAAAAQAAAALwAALwAAQUxQSJ0BAAABkEPbtqk9+5x73+//j23bRmUbtW3b7v6UNmrbtlrbtu7bcd67SZUqIiYAHgs8F8SZkKx/pIo8adHZne/aQCFGATU/CDDywwQkRGWOsBMUv59vjuOUGA6xIyyqLmxn0HdGMgQF7vBtbAHq8xKCW+fFCspda7iNE2MySN3Hgk0/9IACWXNif0ydNUjEZE4byyQNLGDMHk6SxBjaAECd91ePbsRPFVs5Hiayg18GFi9bNrccIztK6RHdkJ43ddOXmcl5bFQX+fnlmzdDMJH3i6Ez72HEo9vkx9uXa0aki46cOH3qVFcUOjINqLl/KbqfOXP88PGz+ytH9Bca+6NCrAHEGqj9uUQkAu9FPBIUb50PUH8UjZ/ta5cKEX8aPeXHDS0CQHxp9cKFfL6sbgJEfBDt+Y7uC/kwswp8FGTPdCRDR16ZXsL4kG0Tv5Bk+Jk8XwEaX+7VYfiDI28uyAeJL22OY0gX8u3qKvBRMcjROfJox2R4MpiOvDc2LyDixxDHT8trASLwUjGJR7omQwSeClrNLAYoPDaACP7p4t3/xQBWUDggTgEAALAHAJ0BKjAAMAA+USSQRaOiIZHFADgFBLQAOwB+AF0DjAN4W/Z39lSb0eKnUA/VP0APWAr6IlXi37mroSuStjtTN4DhLAAA/v6lbv//sNnzld/zF2/7I/mv+OeP8P+R5RnGLx2/uspHY9oRFXRhQh7X2AsdlO8Jprw3RH/hYYehz+BOALTCqFi/LbOthqPv2XaKiHFPf/Xp4FkRnY5cLb7m7k8jlX2Wn4e6+7lHeQ58+Y77lAN8Xqs38ZWHs9FZgw4C6au5nz21Rl8k3fE4NcjLdM5SYBgMrSUgvmexjkZHMRnWsqu9DYwTWUXRtW//q/f0Y/nmfSbLsHOf4skH/UFWTn7/wPr3Two9LPXQO9Zb3DPkQ4kPT54ZlZb9bGnPx/+l0gXJ/xKDuCzpJC3svics3i5tDd/8b7//XQf/N///61FkvRMMppn30W1AAAA=';
+const RES_ICON_GEM_SHARD = 'data:image/webp;base64,UklGRn4HAABXRUJQVlA4WAoAAAAQAAAALwAALwAAQUxQSPwCAAABoEXbliEJuu9FvKissW3btm3btm3btm3btm3bnoi4H1UVHVWz5j8iJgD/8zpg4qAyQOps3BXH9TooYn6UlR7/9fzRXIdI37wfdrErE/nTIiIYQGfN7Gf9RKbIQ4dVwEYdLfRFh5nq2E/JRGY+M6HCwjmXBdcHaS//IRkzO/9ayIub/devpnBSz0/yFlNiz23NY2d+uzS0mrZ2Z2bPzBPbhr3zHyv3wSZ9jankxuEMa/OCURxqO7dnSuyd+MQIXifdakxDbdEpn2NJ5g3DOhE4rabNVkwsOqlRiENFkS5+3OfKyB1MUTV45wFo2CKzPK/oUHf0I+f2DvBjPclU9vOsldx0fG5CEyeb/pNzSea7k2oVsVX+5ukjBYeDmFia+NC4tfZk/meNYHLIEGI+b5Q6Gk7MiS9P3dKjGQtyytzOFFJB/L7MkWcN3zq5JJHx4alsvMlbNdyKif/mZyZvzuO/PTK/f26FsYfXQ28eUYYGN+IBP0feP/HwV/TKvHOp0Rsfpnz9o/FrILTPI28dc5TreyQ+PLkF0fau/HEOX0Ntvk/TpSOMcXO3xO8XMg/YFK8xr29SAT4cw+PcuHd0yTEfPIwBrrU7M49stAbCRLfvjonuYySZeOuYJhCb4o38L68f1g1FFICEkUaxSR7tyPx45iCAD3vkHPnOFH4IPpgBEIhO8RQjc/pj48YB4qZ4iZH5n63FFznd9wDvAEBk6hcYGXnqcAZAbJecyMhbx3BFfvTXvxivx/SvMiW+NHmQjhEvZCJz/mkZSIFgtl++mU6kA7O8zcgfl28pAOjwJ3RJXKUIOsJV97U8OmTOD/kP92kbOmWYAxmZE48eyaPYTTSdSbd5PiNvGzugm+3CyMRTRjApE4GiC+b/ku/PZtpD12PKPHekFmqLLPQNNzGHHlgxR141WpB6WIwXjGwoWOp33jdeo+jDym9O46RAFv7h98UaRR9lhrnNoWTuH24e1aEvKooSzP7Teqp9AQRl0x4/JQZa2iMHGaj/ogxcRVZQOCBcBAAAsBYAnQEqMAAwAD5JGotEIqGhGqwGqCgEhLYAX7OaE//c9xgKVCA2wHmA/YD1hfRz0NfqJ+gB+mfWTfuR6iX9m//+cAcwB1aPoI90/J1zfhX/gN+z1Au7X9285z0P/qvgw/G/7T5u/+Z/VfdD/ef+V5Jvnr2A/5d/Qf9Z+Yf7////x9/s77D/6WOxIDBaoDoDfbh70imZyZq+sw2aHf2V+0hbvB0rTqJKhdTwyi2KpDxOwD9kAH5F59qGZp7hwAD+/w1lU18YlaHzjBD+ax83kJZx2WImRX2oN/+FDWUSQkYhgDx8F8eo2c+y5+Pm7fhh/T2zsp5pP+r6qXynn/K/W9Ss9Wf/eRMb7LF8vD4k+govMuauSHV1AKIrlm/jsrd3Sxph6OUMb0SwI140Zo9wPoY83TLMdnE2bc0/UWWRexD8iiIiX2/zJlTW2keQwZtVw2eqv/bmf4Xk0vR/LYZ7rLRRnP42o4Vax31O+w+HAgoP01qD8Rife/yjCfqg40Sz/l5ll2Ob1+68hFeKR/eOrs82JbB/87GiZ4Bv/pKZZ/KK+Z1yQJK412xA3wZvZWdIl846W5lgc2NccKeKNh+D2ZT/nCsCVVmyR23vMGY8c07dopD4vppTf+D/S/auv3+HIFut1boNJ9+8Y7FjbpXfrv6kbx8ZFimC9igY/Extp6eD22Za9ewJuKduEvSqIFx9RqlX5JyUY/p8ySdCGUxBSDn+Y0DvwdYBuzo5ANtEOsD32tB1EBe5aIHcnUFVt/8s6wIOogL3NX8R5NIPt9XUfBZ8WDBzcVvIjgcVWCcYLjP4L6StT5i3FVFnbWEb2rFqQ0kzg8kl+BklQ4nwWBPk/ZtE1hsUa4C/R1solvDn0ehLXSK1sEjvhwnR7i+h5yNU1qL0M+BfM3kQvA6SdgfUL/zieIivMyxyfnhG2dtGhh3KDMz6UZ1/kqRxR8Je2C4veyFIi1E38ser5Ir3Ufq/PSUGOAx1VT8u4VPIpVbSO3kP9Hn52xHjB/HZ7btbsy7p3M//MtqwODj4NP/8iE9bj2nkrab/+KOS0xBOyL675e0AOs0YdGbJtXEUdFeGbLt+xxCZYKyMY95CwUteL8acumUaqmYsyebQ7fjGBeP4Ui4niJ0JTufAnjnvUsnZpEj55Qjy7aYpMZCvkYU+pM4fQT/Sz9wgEV9rQwk+8HH3vyPmHH+1z+OFPuHptu1GSY+0ENiNZR+txR5P/jvifIz5qyMTw1uAf3eGFeTnE6qP8dDjMcOeDnndUBcKvmVMB61PzkLlwU7hNyYazd8J+m5vwYz6CPE6hR5Dz9TX1kBtClWPusCohqZ39V6/yCstan9tmLKdyNCIR46irADRJ/yPooPGWnY7n13i/6iXuvzH+aJCfjMD96uXWd+oXkkEbH+nCB22vFh1FQzXPgTjTpDSg2A8e2X5CiPER8tn6mW3W/q2mZ62bkdqYuPQXdVJJ0bacVm0XLVOdAZG4AAA';
+const RES_ICON_BRACELET = 'data:image/webp;base64,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';
+const RES_ICON_ABILITY_STONE = 'data:image/webp;base64,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';
 
 /* =========================================================
    RAID DATA (parsed from provided spreadsheet)
    ========================================================= */
 const RAID_DATA = [{"id":"abyssal_dungeon_horizon_cathedral_level_3","raid":"Abyssal Dungeon: Horizon Cathedral","difficulty":"Level 3","ilvl":1750,"gold":50000,"chest":16000,"tier":"Tier 4.1","shortName":"Horizon Cathedral","gates":[{"gold":0,"rosterGold":0,"charGold":20000,"chest":6400},{"gold":0,"rosterGold":0,"charGold":30000,"chest":9600}],"goldBreakdown":{"gold":0,"rosterGold":0,"charGold":50000.0}},{"id":"abyssal_dungeon_horizon_cathedral_level_2","raid":"Abyssal Dungeon: Horizon Cathedral","difficulty":"Level 2","ilvl":1720,"gold":40000,"chest":12800,"tier":"Tier 4","shortName":"Horizon Cathedral","gates":[{"gold":0,"rosterGold":0,"charGold":16000,"chest":5120},{"gold":0,"rosterGold":0,"charGold":24000,"chest":7680}],"goldBreakdown":{"gold":0,"rosterGold":0,"charGold":40000.0}},{"id":"abyssal_dungeon_horizon_cathedral_level_1","raid":"Abyssal Dungeon: Horizon Cathedral","difficulty":"Level 1","ilvl":1700,"gold":30000,"chest":9600,"tier":"Tier 4","shortName":"Horizon Cathedral","gates":[{"gold":0,"rosterGold":0,"charGold":13500,"chest":4320},{"gold":0,"rosterGold":0,"charGold":16500,"chest":5280}],"goldBreakdown":{"gold":0,"rosterGold":0,"charGold":30000.0}},{"id":"shadow_raid_serca_nightmare","raid":"Shadow Raid: Serca","difficulty":"Nightmare","ilvl":1740,"gold":54000,"chest":17280,"tier":"Tier 4.1","shortName":"Serca","gates":[{"gold":21000,"rosterGold":0,"charGold":0,"chest":6720},{"gold":33000,"rosterGold":0,"charGold":0,"chest":10560}],"goldBreakdown":{"gold":54000.0,"rosterGold":0,"charGold":0}},{"id":"shadow_raid_serca_hard","raid":"Shadow Raid: Serca","difficulty":"Hard","ilvl":1730,"gold":44000,"chest":14080,"tier":"Tier 4.1","shortName":"Serca","gates":[{"gold":17500,"rosterGold":0,"charGold":0,"chest":5600},{"gold":26500,"rosterGold":0,"charGold":0,"chest":8480}],"goldBreakdown":{"gold":44000.0,"rosterGold":0,"charGold":0}},{"id":"shadow_raid_serca_normal","raid":"Shadow Raid: Serca","difficulty":"Normal","ilvl":1710,"gold":35000,"chest":11200,"tier":"Tier 4","shortName":"Serca","gates":[{"gold":7000,"rosterGold":7000,"charGold":0,"chest":4480},{"gold":10500,"rosterGold":10500,"charGold":0,"chest":6720}],"goldBreakdown":{"gold":17500.0,"rosterGold":17500.0,"charGold":0}},{"id":"shadow_raid_serca_matching","raid":"Shadow Raid: Serca","difficulty":"Matching","ilvl":1710,"gold":35000,"chest":11200,"tier":"Tier 4","shortName":"Serca","gates":[{"gold":7000,"rosterGold":7000,"charGold":0,"chest":4480},{"gold":10500,"rosterGold":10500,"charGold":0,"chest":6720}],"goldBreakdown":{"gold":17500.0,"rosterGold":17500.0,"charGold":0}},{"id":"denouement_final_day_hard","raid":"Denouement: Kazeros","difficulty":"Hard","ilvl":1730,"gold":52000,"chest":16640,"tier":"Tier 4.1","shortName":"Kazeros","gates":[{"gold":17000,"rosterGold":0,"charGold":0,"chest":5440},{"gold":35000,"rosterGold":0,"charGold":0,"chest":11200}],"goldBreakdown":{"gold":52000.0,"rosterGold":0,"charGold":0}},{"id":"denouement_final_day_normal","raid":"Denouement: Kazeros","difficulty":"Normal","ilvl":1710,"gold":40000,"chest":12800,"tier":"Tier 4","shortName":"Kazeros","gates":[{"gold":7000,"rosterGold":7000,"charGold":0,"chest":4480},{"gold":13000,"rosterGold":13000,"charGold":0,"chest":8320}],"goldBreakdown":{"gold":20000.0,"rosterGold":20000.0,"charGold":0}},{"id":"denouement_final_day_solo","raid":"Denouement: Kazeros","difficulty":"Solo","ilvl":1710,"gold":40000,"chest":12800,"tier":"Tier 4","shortName":"Kazeros","gates":[{"gold":7000,"rosterGold":7000,"charGold":0,"chest":4480},{"gold":13000,"rosterGold":13000,"charGold":0,"chest":8320}],"goldBreakdown":{"gold":20000.0,"rosterGold":20000.0,"charGold":0}},{"id":"act_4_armoche_hard","raid":"Act 4: Armoche","difficulty":"Hard","ilvl":1720,"gold":42000,"chest":13440,"tier":"Tier 4","shortName":"Armoche","gates":[{"gold":15000,"rosterGold":0,"charGold":0,"chest":4800},{"gold":27000,"rosterGold":0,"charGold":0,"chest":8640}],"goldBreakdown":{"gold":42000.0,"rosterGold":0,"charGold":0}},{"id":"act_4_armoche_normal","raid":"Act 4: Armoche","difficulty":"Normal","ilvl":1700,"gold":33000,"chest":10560,"tier":"Tier 4","shortName":"Armoche","gates":[{"gold":6250,"rosterGold":6250,"charGold":0,"chest":4000},{"gold":10250,"rosterGold":10250,"charGold":0,"chest":6560}],"goldBreakdown":{"gold":16500.0,"rosterGold":16500.0,"charGold":0}},{"id":"act_4_armoche_solo","raid":"Act 4: Armoche","difficulty":"Solo","ilvl":1700,"gold":33000,"chest":10560,"tier":"Tier 4","shortName":"Armoche","gates":[{"gold":6250,"rosterGold":6250,"charGold":0,"chest":4000},{"gold":10250,"rosterGold":10250,"charGold":0,"chest":6560}],"goldBreakdown":{"gold":16500.0,"rosterGold":16500.0,"charGold":0}},{"id":"act_3_mordum_hard","raid":"Act 3: Mordum","difficulty":"Hard","ilvl":1700,"gold":27000,"chest":12600,"tier":"Tier 4","shortName":"Mordum","gates":[{"gold":2500,"rosterGold":2500,"charGold":0,"chest":2700},{"gold":4000,"rosterGold":4000,"charGold":0,"chest":4100},{"gold":7000,"rosterGold":7000,"charGold":0,"chest":5800}],"goldBreakdown":{"gold":13500.0,"rosterGold":13500.0,"charGold":0}},{"id":"act_3_mordum_normal","raid":"Act 3: Mordum","difficulty":"Normal","ilvl":1680,"gold":21000,"chest":9800,"tier":"Tier 4","shortName":"Mordum","gates":[{"gold":2000,"rosterGold":2000,"charGold":0,"chest":2400},{"gold":3500,"rosterGold":3500,"charGold":0,"chest":3200},{"gold":5000,"rosterGold":5000,"charGold":0,"chest":4200}],"goldBreakdown":{"gold":10500.0,"rosterGold":10500.0,"charGold":0}},{"id":"act_3_mordum_solo","raid":"Act 3: Mordum","difficulty":"Solo","ilvl":1680,"gold":21000,"chest":9800,"tier":"Tier 4","shortName":"Mordum","gates":[{"gold":2000,"rosterGold":2000,"charGold":0,"chest":2400},{"gold":3500,"rosterGold":3500,"charGold":0,"chest":3200},{"gold":5000,"rosterGold":5000,"charGold":0,"chest":4200}],"goldBreakdown":{"gold":10500.0,"rosterGold":10500.0,"charGold":0}},{"id":"act_2_brelshaza_hard","raid":"Act 2: Brelshaza","difficulty":"Hard","ilvl":1690,"gold":23000,"chest":7500,"tier":"Tier 4","shortName":"Brelshaza","gates":[{"gold":210,"rosterGold":970,"charGold":0,"chest":300},{"gold":220,"rosterGold":980,"charGold":0,"chest":300},{"gold":220,"rosterGold":1000,"charGold":0,"chest":300}],"goldBreakdown":{"gold":650.0,"rosterGold":2950.0,"charGold":0}},{"id":"act_2_brelshaza_normal","raid":"Act 2: Brelshaza","difficulty":"Normal","ilvl":1670,"gold":16500,"chest":5540,"tier":"Tier 4","shortName":"Brelshaza","gates":[{"gold":170,"rosterGold":810,"charGold":0,"chest":100},{"gold":180,"rosterGold":820,"charGold":0,"chest":150},{"gold":200,"rosterGold":820,"charGold":0,"chest":200}],"goldBreakdown":{"gold":550.0,"rosterGold":2450.0,"charGold":0}},{"id":"act_2_brelshaza_solo","raid":"Act 2: Brelshaza","difficulty":"Solo","ilvl":1670,"gold":16500,"chest":5540,"tier":"Tier 4","shortName":"Brelshaza","gates":[{"gold":0,"rosterGold":980,"charGold":0,"chest":100},{"gold":0,"rosterGold":1000,"charGold":0,"chest":150},{"gold":0,"rosterGold":1020,"charGold":0,"chest":200}],"goldBreakdown":{"gold":0,"rosterGold":3000.0,"charGold":0}},{"id":"act_1_aegir_hard","raid":"Act 1: Aegir","difficulty":"Hard","ilvl":1680,"gold":18000,"chest":5970,"tier":"Tier 4","shortName":"Aegir","gates":[{"gold":2750,"rosterGold":2750,"charGold":0,"chest":1820},{"gold":6250,"rosterGold":6250,"charGold":0,"chest":4150}],"goldBreakdown":{"gold":9000.0,"rosterGold":9000.0,"charGold":0}},{"id":"act_1_aegir_normal","raid":"Act 1: Aegir","difficulty":"Normal","ilvl":1660,"gold":11500,"chest":2530,"tier":"Tier 4","shortName":"Aegir","gates":[{"gold":1750,"rosterGold":1750,"charGold":0,"chest":750},{"gold":4000,"rosterGold":4000,"charGold":0,"chest":1780}],"goldBreakdown":{"gold":5750.0,"rosterGold":5750.0,"charGold":0}},{"id":"act_1_aegir_solo","raid":"Act 1: Aegir","difficulty":"Solo","ilvl":1660,"gold":11500,"chest":2530,"tier":"Tier 4","shortName":"Aegir","gates":[{"gold":1750,"rosterGold":1750,"charGold":0,"chest":750},{"gold":4000,"rosterGold":4000,"charGold":0,"chest":1780}],"goldBreakdown":{"gold":5750.0,"rosterGold":5750.0,"charGold":0}},{"id":"behemoth_normal","raid":"Behemoth","difficulty":"Normal","ilvl":1620,"gold":7200,"chest":3250,"tier":"Tier 4","shortName":"Behemoth","gates":[{"gold":1100,"rosterGold":1100,"charGold":0,"chest":1250},{"gold":2500,"rosterGold":2500,"charGold":0,"chest":2000}],"goldBreakdown":{"gold":3600.0,"rosterGold":3600.0,"charGold":0}},{"id":"overture_echidna_hard","raid":"Overture: Echidna","difficulty":"Hard","ilvl":1630,"gold":7200,"chest":2350,"tier":"Tier 4","shortName":"Echidna","gates":[{"gold":1100,"rosterGold":1100,"charGold":0,"chest":720},{"gold":2500,"rosterGold":2500,"charGold":0,"chest":1630}],"goldBreakdown":{"gold":3600.0,"rosterGold":3600.0,"charGold":0}},{"id":"overture_echidna_normal","raid":"Overture: Echidna","difficulty":"Normal","ilvl":1620,"gold":6100,"chest":1010,"tier":"Tier 4","shortName":"Echidna","gates":[{"gold":0,"rosterGold":1900,"charGold":0,"chest":310},{"gold":0,"rosterGold":4200,"charGold":0,"chest":700}],"goldBreakdown":{"gold":0,"rosterGold":6100.0,"charGold":0}},{"id":"overture_echidna_solo","raid":"Overture: Echidna","difficulty":"Solo","ilvl":1620,"gold":6100,"chest":1010,"tier":"Tier 4","shortName":"Echidna","gates":[{"gold":0,"rosterGold":1900,"charGold":0,"chest":310},{"gold":0,"rosterGold":4200,"charGold":0,"chest":700}],"goldBreakdown":{"gold":0,"rosterGold":6100.0,"charGold":0}},{"id":"thaemine_hard","raid":"Thaemine","difficulty":"Hard","ilvl":1620,"gold":13000,"chest":3250,"tier":"Tier 4","shortName":"Thaemine","gates":[{"gold":400,"rosterGold":1600,"charGold":0,"chest":500},{"gold":480,"rosterGold":1920,"charGold":0,"chest":600},{"gold":720,"rosterGold":2880,"charGold":0,"chest":900}],"goldBreakdown":{"gold":1600.0,"rosterGold":6400.0,"charGold":0}},{"id":"thaemine_normal","raid":"Thaemine","difficulty":"Normal","ilvl":1610,"gold":6400,"chest":1440,"tier":"Tier 3","shortName":"Thaemine","gates":[{"gold":320,"rosterGold":1280,"charGold":0,"chest":360},{"gold":400,"rosterGold":1600,"charGold":0,"chest":440},{"gold":560,"rosterGold":2240,"charGold":0,"chest":640}],"goldBreakdown":{"gold":1280.0,"rosterGold":5120.0,"charGold":0}},{"id":"thaemine_solo","raid":"Thaemine","difficulty":"Solo","ilvl":1610,"gold":6400,"chest":1440,"tier":"Tier 3","shortName":"Thaemine","gates":[{"gold":0,"rosterGold":1600,"charGold":0,"chest":360},{"gold":0,"rosterGold":2000,"charGold":0,"chest":440},{"gold":0,"rosterGold":2800,"charGold":0,"chest":640}],"goldBreakdown":{"gold":0,"rosterGold":6400.0,"charGold":0}},{"id":"ivory__tower_hard","raid":"Ivory  Tower","difficulty":"Hard","ilvl":1610,"gold":7200,"chest":1800,"tier":"Tier 3","shortName":"Ivory  Tower","gates":[{"gold":420,"rosterGold":1680,"charGold":0,"chest":350},{"gold":480,"rosterGold":1920,"charGold":0,"chest":500},{"gold":540,"rosterGold":2160,"charGold":0,"chest":950}],"goldBreakdown":{"gold":1440.0,"rosterGold":5760.0,"charGold":0}},{"id":"ivory__tower_normal","raid":"Ivory  Tower","difficulty":"Normal","ilvl":1600,"gold":5200,"chest":700,"tier":"Tier 3","shortName":"Ivory  Tower","gates":[{"gold":250,"rosterGold":1100,"charGold":0,"chest":180},{"gold":350,"rosterGold":1400,"charGold":0,"chest":220},{"gold":420,"rosterGold":1680,"charGold":0,"chest":300}],"goldBreakdown":{"gold":1020.0,"rosterGold":4180.0,"charGold":0}},{"id":"ivory__tower_solo","raid":"Ivory  Tower","difficulty":"Solo","ilvl":1600,"gold":5200,"chest":700,"tier":"Tier 3","shortName":"Ivory  Tower","gates":[{"gold":0,"rosterGold":1350,"charGold":0,"chest":180},{"gold":0,"rosterGold":1750,"charGold":0,"chest":220},{"gold":0,"rosterGold":2100,"charGold":0,"chest":300}],"goldBreakdown":{"gold":0,"rosterGold":5200.0,"charGold":0}},{"id":"akkan_hard","raid":"Akkan","difficulty":"Hard","ilvl":1600,"gold":6000,"chest":1500,"tier":"Tier 3","shortName":"Akkan","gates":[{"gold":200,"rosterGold":1300,"charGold":0,"chest":300},{"gold":410,"rosterGold":1640,"charGold":0,"chest":500},{"gold":490,"rosterGold":1960,"charGold":0,"chest":700}],"goldBreakdown":{"gold":1100.0,"rosterGold":4900.0,"charGold":0}},{"id":"akkan_normal","raid":"Akkan","difficulty":"Normal","ilvl":1580,"gold":4700,"chest":750,"tier":"Tier 3","shortName":"Akkan","gates":[{"gold":255,"rosterGold":1015,"charGold":0,"chest":190},{"gold":300,"rosterGold":1300,"charGold":0,"chest":230},{"gold":330,"rosterGold":1500,"charGold":0,"chest":330}],"goldBreakdown":{"gold":885.0,"rosterGold":3815.0,"charGold":0}},{"id":"akkan_solo","raid":"Akkan","difficulty":"Solo","ilvl":1580,"gold":4700,"chest":750,"tier":"Tier 3","shortName":"Akkan","gates":[{"gold":0,"rosterGold":1270,"charGold":0,"chest":190},{"gold":0,"rosterGold":1600,"charGold":0,"chest":230},{"gold":0,"rosterGold":1830,"charGold":0,"chest":330}],"goldBreakdown":{"gold":0,"rosterGold":4700.0,"charGold":0}},{"id":"kayangel_hard","raid":"Kayangel","difficulty":"Hard","ilvl":1580,"gold":4300,"chest":1075,"tier":"Tier 3","shortName":"Kayangel","gates":[{"gold":150,"rosterGold":1000,"charGold":0,"chest":225},{"gold":250,"rosterGold":1200,"charGold":0,"chest":350},{"gold":400,"rosterGold":1300,"charGold":0,"chest":500}],"goldBreakdown":{"gold":800.0,"rosterGold":3500.0,"charGold":0}},{"id":"kayangel_normal","raid":"Kayangel","difficulty":"Normal","ilvl":1540,"gold":3300,"chest":650,"tier":"Tier 3","shortName":"Kayangel","gates":[{"gold":100,"rosterGold":900,"charGold":0,"chest":180},{"gold":200,"rosterGold":900,"charGold":0,"chest":200},{"gold":300,"rosterGold":900,"charGold":0,"chest":270}],"goldBreakdown":{"gold":600.0,"rosterGold":2700.0,"charGold":0}},{"id":"kayangel_solo","raid":"Kayangel","difficulty":"Solo","ilvl":1540,"gold":3300,"chest":650,"tier":"Tier 3","shortName":"Kayangel","gates":[{"gold":0,"rosterGold":1000,"charGold":0,"chest":180},{"gold":0,"rosterGold":1100,"charGold":0,"chest":200},{"gold":0,"rosterGold":1200,"charGold":0,"chest":270}],"goldBreakdown":{"gold":0,"rosterGold":3300.0,"charGold":0}},{"id":"brelshaza_hard","raid":"Brelshaza","difficulty":"Hard","ilvl":1540,"gold":5600,"chest":1400,"tier":"Tier 3","shortName":"Brelshaza","gates":[{"gold":210,"rosterGold":970,"charGold":0,"chest":300},{"gold":220,"rosterGold":980,"charGold":0,"chest":300},{"gold":220,"rosterGold":1000,"charGold":0,"chest":300}],"goldBreakdown":{"gold":650.0,"rosterGold":2950.0,"charGold":0}},{"id":"brelshaza_normal","raid":"Brelshaza","difficulty":"Normal","ilvl":1490,"gold":4600,"chest":825,"tier":"Tier 3","shortName":"Brelshaza","gates":[{"gold":170,"rosterGold":810,"charGold":0,"chest":100},{"gold":180,"rosterGold":820,"charGold":0,"chest":150},{"gold":200,"rosterGold":820,"charGold":0,"chest":200}],"goldBreakdown":{"gold":550.0,"rosterGold":2450.0,"charGold":0}},{"id":"brelshaza_solo","raid":"Brelshaza","difficulty":"Solo","ilvl":1490,"gold":4600,"chest":825,"tier":"Tier 3","shortName":"Brelshaza","gates":[{"gold":0,"rosterGold":980,"charGold":0,"chest":100},{"gold":0,"rosterGold":1000,"charGold":0,"chest":150},{"gold":0,"rosterGold":1020,"charGold":0,"chest":200}],"goldBreakdown":{"gold":0,"rosterGold":3000.0,"charGold":0}},{"id":"kakul_saydon_normal","raid":"Kakul- Saydon","difficulty":"Normal","ilvl":1475,"gold":2000,"chest":450,"tier":"Tier 3","shortName":"Kakul- Saydon","gates":[{"gold":70,"rosterGold":330,"charGold":0,"chest":100},{"gold":100,"rosterGold":500,"charGold":0,"chest":150},{"gold":180,"rosterGold":820,"charGold":0,"chest":200}],"goldBreakdown":{"gold":350.0,"rosterGold":1650.0,"charGold":0}},{"id":"kakul_saydon_solo","raid":"Kakul- Saydon","difficulty":"Solo","ilvl":1475,"gold":2000,"chest":450,"tier":"Tier 3","shortName":"Kakul- Saydon","gates":[{"gold":0,"rosterGold":400,"charGold":0,"chest":100},{"gold":0,"rosterGold":600,"charGold":0,"chest":150},{"gold":0,"rosterGold":1000,"charGold":0,"chest":200}],"goldBreakdown":{"gold":0,"rosterGold":2000.0,"charGold":0}},{"id":"vykas_hard","raid":"Vykas","difficulty":"Hard","ilvl":1460,"gold":1500,"chest":600,"tier":"Tier 3","shortName":"Vykas","gates":[{"gold":80,"rosterGold":420,"charGold":0,"chest":225},{"gold":170,"rosterGold":830,"charGold":0,"chest":375}],"goldBreakdown":{"gold":250.0,"rosterGold":1250.0,"charGold":0}},{"id":"vykas_normal","raid":"Vykas","difficulty":"Normal","ilvl":1430,"gold":1000,"chest":250,"tier":"Tier 3","shortName":"Vykas","gates":[{"gold":50,"rosterGold":300,"charGold":0,"chest":100},{"gold":100,"rosterGold":550,"charGold":0,"chest":150}],"goldBreakdown":{"gold":150.0,"rosterGold":850.0,"charGold":0}},{"id":"vykas_solo","raid":"Vykas","difficulty":"Solo","ilvl":1430,"gold":1000,"chest":250,"tier":"Tier 3","shortName":"Vykas","gates":[{"gold":0,"rosterGold":350,"charGold":0,"chest":100},{"gold":0,"rosterGold":650,"charGold":0,"chest":150}],"goldBreakdown":{"gold":0,"rosterGold":1000.0,"charGold":0}},{"id":"valtan_hard","raid":"Valtan","difficulty":"Hard","ilvl":1445,"gold":1100,"chest":450,"tier":"Tier 3","shortName":"Valtan","gates":[{"gold":70,"rosterGold":330,"charGold":0,"chest":175},{"gold":130,"rosterGold":570,"charGold":0,"chest":275}],"goldBreakdown":{"gold":200.0,"rosterGold":900.0,"charGold":0}},{"id":"valtan_normal","raid":"Valtan","difficulty":"Normal","ilvl":1415,"gold":750,"chest":175,"tier":"Tier 3","shortName":"Valtan","gates":[{"gold":40,"rosterGold":250,"charGold":0,"chest":75},{"gold":60,"rosterGold":400,"charGold":0,"chest":100}],"goldBreakdown":{"gold":100.0,"rosterGold":650.0,"charGold":0}},{"id":"valtan_solo","raid":"Valtan","difficulty":"Solo","ilvl":1415,"gold":750,"chest":175,"tier":"Tier 3","shortName":"Valtan","gates":[{"gold":0,"rosterGold":290,"charGold":0,"chest":75},{"gold":0,"rosterGold":460,"charGold":0,"chest":100}],"goldBreakdown":{"gold":0,"rosterGold":750.0,"charGold":0}}];
 
+const RAID_FULL_DATA = [
+  { tier:'Tier 4.5', raid:'Abyssal Dungeon: Horizon Cathedral', difficulty:'Level 3', ilvl:1750, gates:[{gate:'Gate 1', gold:null, rosterGold:null, charGold:20000, mainMat:24, clearMedal:null, destinyStone:null, destructionStones:405, guardianStones:810, shards:9100, leapstones:8, bidMainMat:null, chestCost:6400, chestMainMat:24, chestDestructionStones:860, chestGuardianStones:1720, chestShards:19000, chestLeapstones:36, chestCardPack:null}, {gate:'Gate 2', gold:null, rosterGold:null, charGold:30000, mainMat:36, clearMedal:null, destinyStone:10, destructionStones:500, guardianStones:1000, shards:11000, leapstones:12, bidMainMat:null, chestCost:9600, chestMainMat:36, chestDestructionStones:1430, chestGuardianStones:2860, chestShards:32200, chestLeapstones:60, chestCardPack:1}], total:{gold:50000, mainMat:60, clearMedal:null, destinyStone:10, destructionStones:905, guardianStones:1810, shards:20100, leapstones:20, bidMainMat:null, chestCost:16000, chestMainMat:60, chestDestructionStones:2290, chestGuardianStones:4580, chestShards:51200, chestLeapstones:96, chestCardPack:1} },
+  { tier:'Tier 4', raid:'Abyssal Dungeon: Horizon Cathedral', difficulty:'Level 2', ilvl:1720, gates:[{gate:'Gate 1', gold:null, rosterGold:null, charGold:16000, mainMat:12, clearMedal:null, destinyStone:null, destructionStones:980, guardianStones:1960, shards:6800, leapstones:11, bidMainMat:null, chestCost:5120, chestMainMat:12, chestDestructionStones:1680, chestGuardianStones:3360, chestShards:14250, chestLeapstones:53, chestCardPack:null}, {gate:'Gate 2', gold:null, rosterGold:null, charGold:24000, mainMat:18, clearMedal:null, destinyStone:10, destructionStones:1150, guardianStones:2300, shards:8600, leapstones:16, bidMainMat:null, chestCost:7680, chestMainMat:18, chestDestructionStones:2880, chestGuardianStones:5760, chestShards:24200, chestLeapstones:94, chestCardPack:1}], total:{gold:40000, mainMat:30, clearMedal:null, destinyStone:10, destructionStones:2130, guardianStones:4260, shards:15400, leapstones:27, bidMainMat:null, chestCost:12800, chestMainMat:30, chestDestructionStones:4560, chestGuardianStones:9120, chestShards:38450, chestLeapstones:147, chestCardPack:1} },
+  { tier:'Tier 4', raid:'Abyssal Dungeon: Horizon Cathedral', difficulty:'Level 1', ilvl:1700, gates:[{gate:'Gate 1', gold:null, rosterGold:null, charGold:13500, mainMat:4, clearMedal:null, destinyStone:null, destructionStones:820, guardianStones:1640, shards:5400, leapstones:9, bidMainMat:null, chestCost:4320, chestMainMat:4, chestDestructionStones:1400, chestGuardianStones:2800, chestShards:11880, chestLeapstones:44, chestCardPack:null}, {gate:'Gate 2', gold:null, rosterGold:null, charGold:16500, mainMat:6, clearMedal:null, destinyStone:8, destructionStones:960, guardianStones:1920, shards:6800, leapstones:12, bidMainMat:null, chestCost:5280, chestMainMat:6, chestDestructionStones:2400, chestGuardianStones:4800, chestShards:20160, chestLeapstones:78, chestCardPack:1}], total:{gold:30000, mainMat:10, clearMedal:null, destinyStone:8, destructionStones:1780, guardianStones:3560, shards:12200, leapstones:21, bidMainMat:null, chestCost:9600, chestMainMat:10, chestDestructionStones:3800, chestGuardianStones:7600, chestShards:32040, chestLeapstones:122, chestCardPack:1} },
+  { tier:'Tier 4.5', raid:'Shadow Raid: Serca', difficulty:'Nightmare', ilvl:1740, gates:[{gate:'Gate 1', gold:21000, rosterGold:null, charGold:null, mainMat:10, clearMedal:1300, destinyStone:10, destructionStones:405, guardianStones:810, shards:9100, leapstones:8, bidMainMat:null, chestCost:6720, chestMainMat:10, chestDestructionStones:860, chestGuardianStones:1720, chestShards:19000, chestLeapstones:36, chestCardPack:null}, {gate:'Gate 2', gold:33000, rosterGold:null, charGold:null, mainMat:15, clearMedal:2100, destinyStone:null, destructionStones:500, guardianStones:1000, shards:11000, leapstones:12, bidMainMat:null, chestCost:10560, chestMainMat:15, chestDestructionStones:1430, chestGuardianStones:2860, chestShards:32200, chestLeapstones:60, chestCardPack:1}], total:{gold:54000, mainMat:25, clearMedal:3400, destinyStone:10, destructionStones:905, guardianStones:1810, shards:20100, leapstones:20, bidMainMat:null, chestCost:17280, chestMainMat:25, chestDestructionStones:2290, chestGuardianStones:4580, chestShards:51200, chestLeapstones:96, chestCardPack:1} },
+  { tier:'Tier 4.5', raid:'Shadow Raid: Serca', difficulty:'Hard', ilvl:1730, gates:[{gate:'Gate 1', gold:17500, rosterGold:null, charGold:null, mainMat:10, clearMedal:1300, destinyStone:null, destructionStones:385, guardianStones:770, shards:8300, leapstones:7, bidMainMat:null, chestCost:5600, chestMainMat:10, chestDestructionStones:750, chestGuardianStones:1500, chestShards:17500, chestLeapstones:30, chestCardPack:null}, {gate:'Gate 2', gold:26500, rosterGold:null, charGold:null, mainMat:15, clearMedal:2100, destinyStone:10, destructionStones:475, guardianStones:950, shards:10100, leapstones:10, bidMainMat:null, chestCost:8480, chestMainMat:15, chestDestructionStones:1130, chestGuardianStones:2260, chestShards:26820, chestLeapstones:45, chestCardPack:1}], total:{gold:44000, mainMat:25, clearMedal:3400, destinyStone:10, destructionStones:860, guardianStones:1720, shards:18400, leapstones:17, bidMainMat:null, chestCost:14080, chestMainMat:25, chestDestructionStones:1880, chestGuardianStones:3760, chestShards:44320, chestLeapstones:75, chestCardPack:1} },
+  { tier:'Tier 4', raid:'Shadow Raid: Serca', difficulty:'Normal', ilvl:1710, gates:[{gate:'Gate 1', gold:7000, rosterGold:7000, charGold:null, mainMat:100, clearMedal:1300, destinyStone:null, destructionStones:880, guardianStones:1760, shards:6200, leapstones:12, bidMainMat:null, chestCost:4480, chestMainMat:100, chestDestructionStones:1610, chestGuardianStones:3220, chestShards:13650, chestLeapstones:50, chestCardPack:null}, {gate:'Gate 2', gold:10500, rosterGold:10500, charGold:null, mainMat:100, clearMedal:2100, destinyStone:8, destructionStones:1100, guardianStones:2200, shards:7900, leapstones:15, bidMainMat:null, chestCost:6720, chestMainMat:100, chestDestructionStones:2480, chestGuardianStones:4960, chestShards:20880, chestLeapstones:82, chestCardPack:1}], total:{gold:35000, mainMat:200, clearMedal:3400, destinyStone:8, destructionStones:1980, guardianStones:3960, shards:14100, leapstones:27, bidMainMat:null, chestCost:11200, chestMainMat:200, chestDestructionStones:4090, chestGuardianStones:8180, chestShards:34530, chestLeapstones:132, chestCardPack:1} },
+  { tier:'Tier 4', raid:'Shadow Raid: Serca', difficulty:'Matching', ilvl:1710, gates:[{gate:'Gate 1', gold:7000, rosterGold:7000, charGold:null, mainMat:100, clearMedal:1300, destinyStone:null, destructionStones:880, guardianStones:1760, shards:6200, leapstones:12, bidMainMat:null, chestCost:4480, chestMainMat:100, chestDestructionStones:1610, chestGuardianStones:3220, chestShards:13650, chestLeapstones:50, chestCardPack:null}, {gate:'Gate 2', gold:10500, rosterGold:10500, charGold:null, mainMat:100, clearMedal:2100, destinyStone:8, destructionStones:1100, guardianStones:2200, shards:7900, leapstones:15, bidMainMat:null, chestCost:6720, chestMainMat:100, chestDestructionStones:2480, chestGuardianStones:4960, chestShards:20880, chestLeapstones:82, chestCardPack:1}], total:{gold:35000, mainMat:200, clearMedal:3400, destinyStone:8, destructionStones:1980, guardianStones:3960, shards:14100, leapstones:27, bidMainMat:null, chestCost:11200, chestMainMat:200, chestDestructionStones:4090, chestGuardianStones:8180, chestShards:34530, chestLeapstones:132, chestCardPack:1} },
+  { tier:'Tier 4.5', raid:'Denouement: Final Day', difficulty:'Hard', ilvl:1730, gates:[{gate:'Gate 1', gold:17000, rosterGold:null, charGold:null, mainMat:null, clearMedal:1300, destinyStone:null, destructionStones:385, guardianStones:770, shards:8300, leapstones:7, bidMainMat:null, chestCost:5440, chestMainMat:null, chestDestructionStones:750, chestGuardianStones:1500, chestShards:17500, chestLeapstones:30, chestCardPack:null}, {gate:'Gate 2', gold:35000, rosterGold:null, charGold:null, mainMat:null, clearMedal:2100, destinyStone:10, destructionStones:475, guardianStones:950, shards:10100, leapstones:10, bidMainMat:null, chestCost:11200, chestMainMat:null, chestDestructionStones:1320, chestGuardianStones:2640, chestShards:29800, chestLeapstones:50, chestCardPack:1}], total:{gold:52000, mainMat:null, clearMedal:3400, destinyStone:10, destructionStones:860, guardianStones:1720, shards:18400, leapstones:17, bidMainMat:null, chestCost:16640, chestMainMat:null, chestDestructionStones:2070, chestGuardianStones:4140, chestShards:47300, chestLeapstones:80, chestCardPack:1} },
+  { tier:'Tier 4', raid:'Denouement: Final Day', difficulty:'Normal', ilvl:1710, gates:[{gate:'Gate 1', gold:7000, rosterGold:7000, charGold:null, mainMat:null, clearMedal:1300, destinyStone:null, destructionStones:880, guardianStones:1760, shards:6200, leapstones:12, bidMainMat:null, chestCost:4480, chestMainMat:null, chestDestructionStones:1610, chestGuardianStones:3220, chestShards:13650, chestLeapstones:50, chestCardPack:null}, {gate:'Gate 2', gold:13000, rosterGold:13000, charGold:null, mainMat:null, clearMedal:2100, destinyStone:8, destructionStones:1100, guardianStones:2200, shards:7900, leapstones:15, bidMainMat:null, chestCost:8320, chestMainMat:null, chestDestructionStones:2760, chestGuardianStones:5520, chestShards:23200, chestLeapstones:90, chestCardPack:1}], total:{gold:40000, mainMat:null, clearMedal:3400, destinyStone:8, destructionStones:1980, guardianStones:3960, shards:14100, leapstones:27, bidMainMat:null, chestCost:12800, chestMainMat:null, chestDestructionStones:4370, chestGuardianStones:8740, chestShards:36850, chestLeapstones:140, chestCardPack:1} },
+  { tier:'Tier 4', raid:'Denouement: Final Day', difficulty:'Solo', ilvl:1710, gates:[{gate:'Gate 1', gold:7000, rosterGold:7000, charGold:null, mainMat:null, clearMedal:1300, destinyStone:null, destructionStones:880, guardianStones:1760, shards:6200, leapstones:12, bidMainMat:null, chestCost:4480, chestMainMat:null, chestDestructionStones:1610, chestGuardianStones:3220, chestShards:13650, chestLeapstones:50, chestCardPack:null}, {gate:'Gate 2', gold:13000, rosterGold:13000, charGold:null, mainMat:null, clearMedal:2100, destinyStone:8, destructionStones:1100, guardianStones:2200, shards:7900, leapstones:15, bidMainMat:null, chestCost:8320, chestMainMat:null, chestDestructionStones:2760, chestGuardianStones:5520, chestShards:23200, chestLeapstones:90, chestCardPack:1}], total:{gold:40000, mainMat:null, clearMedal:3400, destinyStone:8, destructionStones:1980, guardianStones:3960, shards:14100, leapstones:27, bidMainMat:null, chestCost:12800, chestMainMat:null, chestDestructionStones:4370, chestGuardianStones:8740, chestShards:36850, chestLeapstones:140, chestCardPack:1} },
+  { tier:'Tier 4', raid:'Act 4: Armoche', difficulty:'Hard', ilvl:1720, gates:[{gate:'Gate 1', gold:15000, rosterGold:null, charGold:null, mainMat:null, clearMedal:1200, destinyStone:null, destructionStones:980, guardianStones:1960, shards:6800, leapstones:11, bidMainMat:null, chestCost:4800, chestMainMat:null, chestDestructionStones:1680, chestGuardianStones:3360, chestShards:14250, chestLeapstones:53, chestCardPack:null}, {gate:'Gate 2', gold:27000, rosterGold:null, charGold:null, mainMat:null, clearMedal:1900, destinyStone:9, destructionStones:1150, guardianStones:2300, shards:8600, leapstones:16, bidMainMat:null, chestCost:8640, chestMainMat:null, chestDestructionStones:2880, chestGuardianStones:5760, chestShards:24200, chestLeapstones:94, chestCardPack:1}], total:{gold:42000, mainMat:null, clearMedal:3100, destinyStone:9, destructionStones:2130, guardianStones:4260, shards:15400, leapstones:27, bidMainMat:null, chestCost:13440, chestMainMat:null, chestDestructionStones:4560, chestGuardianStones:9120, chestShards:38450, chestLeapstones:147, chestCardPack:1} },
+  { tier:'Tier 4', raid:'Act 4: Armoche', difficulty:'Normal', ilvl:1700, gates:[{gate:'Gate 1', gold:6250, rosterGold:6250, charGold:null, mainMat:null, clearMedal:1200, destinyStone:null, destructionStones:820, guardianStones:1640, shards:5400, leapstones:9, bidMainMat:null, chestCost:4000, chestMainMat:null, chestDestructionStones:1400, chestGuardianStones:2800, chestShards:11880, chestLeapstones:44, chestCardPack:null}, {gate:'Gate 2', gold:10250, rosterGold:10250, charGold:null, mainMat:null, clearMedal:1900, destinyStone:7, destructionStones:960, guardianStones:1920, shards:6800, leapstones:12, bidMainMat:null, chestCost:6560, chestMainMat:null, chestDestructionStones:2400, chestGuardianStones:4800, chestShards:20160, chestLeapstones:78, chestCardPack:1}], total:{gold:33000, mainMat:null, clearMedal:3100, destinyStone:7, destructionStones:1780, guardianStones:3560, shards:12200, leapstones:21, bidMainMat:null, chestCost:10560, chestMainMat:null, chestDestructionStones:3800, chestGuardianStones:7600, chestShards:32040, chestLeapstones:122, chestCardPack:1} },
+  { tier:'Tier 4', raid:'Act 4: Armoche', difficulty:'Solo', ilvl:1700, gates:[{gate:'Gate 1', gold:6250, rosterGold:6250, charGold:null, mainMat:null, clearMedal:1200, destinyStone:null, destructionStones:820, guardianStones:1640, shards:5400, leapstones:9, bidMainMat:null, chestCost:4000, chestMainMat:null, chestDestructionStones:1400, chestGuardianStones:2800, chestShards:11880, chestLeapstones:44, chestCardPack:null}, {gate:'Gate 2', gold:10250, rosterGold:10250, charGold:null, mainMat:null, clearMedal:1900, destinyStone:7, destructionStones:960, guardianStones:1920, shards:6800, leapstones:12, bidMainMat:null, chestCost:6560, chestMainMat:null, chestDestructionStones:2400, chestGuardianStones:4800, chestShards:20160, chestLeapstones:78, chestCardPack:1}], total:{gold:33000, mainMat:null, clearMedal:3100, destinyStone:7, destructionStones:1780, guardianStones:3560, shards:12200, leapstones:21, bidMainMat:null, chestCost:10560, chestMainMat:null, chestDestructionStones:3800, chestGuardianStones:7600, chestShards:32040, chestLeapstones:122, chestCardPack:1} },
+  { tier:'Tier 4', raid:'Act 3: Mordum', difficulty:'Hard', ilvl:1700, gates:[{gate:'Gate 1', gold:2500, rosterGold:2500, charGold:null, mainMat:3, clearMedal:600, destinyStone:null, destructionStones:440, guardianStones:880, shards:3400, leapstones:6, bidMainMat:null, chestCost:2700, chestMainMat:3, chestDestructionStones:600, chestGuardianStones:1200, chestShards:5000, chestLeapstones:23, chestCardPack:null}, {gate:'Gate 2', gold:4000, rosterGold:4000, charGold:null, mainMat:5, clearMedal:700, destinyStone:null, destructionStones:520, guardianStones:1040, shards:4000, leapstones:6, bidMainMat:null, chestCost:4100, chestMainMat:5, chestDestructionStones:830, chestGuardianStones:1660, chestShards:7200, chestLeapstones:27, chestCardPack:null}, {gate:'Gate 3', gold:7000, rosterGold:7000, charGold:null, mainMat:10, clearMedal:1400, destinyStone:7, destructionStones:640, guardianStones:1280, shards:5600, leapstones:8, bidMainMat:10, chestCost:5800, chestMainMat:10, chestDestructionStones:1460, chestGuardianStones:2920, chestShards:11760, chestLeapstones:45, chestCardPack:1}], total:{gold:27000, mainMat:18, clearMedal:2700, destinyStone:7, destructionStones:1600, guardianStones:3200, shards:13000, leapstones:20, bidMainMat:10, chestCost:12600, chestMainMat:18, chestDestructionStones:2890, chestGuardianStones:5780, chestShards:23960, chestLeapstones:95, chestCardPack:1} },
+  { tier:'Tier 4', raid:'Act 3: Mordum', difficulty:'Normal', ilvl:1680, gates:[{gate:'Gate 1', gold:2000, rosterGold:2000, charGold:null, mainMat:3, clearMedal:600, destinyStone:null, destructionStones:320, guardianStones:640, shards:2600, leapstones:4, bidMainMat:null, chestCost:2400, chestMainMat:3, chestDestructionStones:390, chestGuardianStones:780, chestShards:3680, chestLeapstones:12, chestCardPack:null}, {gate:'Gate 2', gold:3500, rosterGold:3500, charGold:null, mainMat:5, clearMedal:700, destinyStone:null, destructionStones:400, guardianStones:800, shards:3000, leapstones:4, bidMainMat:null, chestCost:3200, chestMainMat:5, chestDestructionStones:530, chestGuardianStones:1060, chestShards:4750, chestLeapstones:15, chestCardPack:null}, {gate:'Gate 3', gold:5000, rosterGold:5000, charGold:null, mainMat:10, clearMedal:1400, destinyStone:5, destructionStones:520, guardianStones:1040, shards:4200, leapstones:6, bidMainMat:10, chestCost:4200, chestMainMat:10, chestDestructionStones:780, chestGuardianStones:1560, chestShards:6810, chestLeapstones:21, chestCardPack:1}], total:{gold:21000, mainMat:18, clearMedal:2700, destinyStone:5, destructionStones:1240, guardianStones:2480, shards:9800, leapstones:14, bidMainMat:10, chestCost:9800, chestMainMat:18, chestDestructionStones:1700, chestGuardianStones:3400, chestShards:15240, chestLeapstones:48, chestCardPack:1} },
+  { tier:'Tier 4', raid:'Act 3: Mordum', difficulty:'Solo', ilvl:1680, gates:[{gate:'Gate 1', gold:2000, rosterGold:2000, charGold:null, mainMat:3, clearMedal:600, destinyStone:null, destructionStones:320, guardianStones:640, shards:2600, leapstones:4, bidMainMat:null, chestCost:2400, chestMainMat:3, chestDestructionStones:390, chestGuardianStones:780, chestShards:3680, chestLeapstones:12, chestCardPack:null}, {gate:'Gate 2', gold:3500, rosterGold:3500, charGold:null, mainMat:5, clearMedal:700, destinyStone:null, destructionStones:400, guardianStones:800, shards:3000, leapstones:4, bidMainMat:null, chestCost:3200, chestMainMat:5, chestDestructionStones:530, chestGuardianStones:1060, chestShards:4750, chestLeapstones:15, chestCardPack:null}, {gate:'Gate 3', gold:5000, rosterGold:5000, charGold:null, mainMat:10, clearMedal:1400, destinyStone:5, destructionStones:520, guardianStones:1040, shards:4200, leapstones:6, bidMainMat:null, chestCost:4200, chestMainMat:10, chestDestructionStones:780, chestGuardianStones:1560, chestShards:6810, chestLeapstones:21, chestCardPack:1}], total:{gold:21000, mainMat:18, clearMedal:2700, destinyStone:5, destructionStones:1240, guardianStones:2480, shards:9800, leapstones:14, bidMainMat:null, chestCost:9800, chestMainMat:18, chestDestructionStones:1700, chestGuardianStones:3400, chestShards:15240, chestLeapstones:48, chestCardPack:1} },
+  { tier:'Tier 4', raid:'Act 2: Brelshaza', difficulty:'Hard', ilvl:1690, gates:[{gate:'Gate 1', gold:3750, rosterGold:3750, charGold:null, mainMat:8, clearMedal:1000, destinyStone:null, destructionStones:640, guardianStones:1280, shards:4600, leapstones:7, bidMainMat:null, chestCost:2400, chestMainMat:8, chestDestructionStones:720, chestGuardianStones:1440, chestShards:6000, chestLeapstones:30, chestCardPack:null}, {gate:'Gate 2', gold:7750, rosterGold:7750, charGold:null, mainMat:12, clearMedal:1300, destinyStone:6, destructionStones:700, guardianStones:1400, shards:6000, leapstones:8, bidMainMat:10, chestCost:5100, chestMainMat:12, chestDestructionStones:1320, chestGuardianStones:2640, chestShards:10590, chestLeapstones:50, chestCardPack:1}], total:{gold:23000, mainMat:20, clearMedal:2300, destinyStone:6, destructionStones:1340, guardianStones:2680, shards:10600, leapstones:15, bidMainMat:10, chestCost:7500, chestMainMat:20, chestDestructionStones:2040, chestGuardianStones:4080, chestShards:16590, chestLeapstones:80, chestCardPack:1} },
+  { tier:'Tier 4', raid:'Act 2: Brelshaza', difficulty:'Normal', ilvl:1670, gates:[{gate:'Gate 1', gold:2750, rosterGold:2750, charGold:null, mainMat:4, clearMedal:1000, destinyStone:null, destructionStones:540, guardianStones:1080, shards:4000, leapstones:5, bidMainMat:null, chestCost:1820, chestMainMat:4, chestDestructionStones:610, chestGuardianStones:1220, chestShards:5220, chestLeapstones:13, chestCardPack:null}, {gate:'Gate 2', gold:5500, rosterGold:5500, charGold:null, mainMat:6, clearMedal:1300, destinyStone:4, destructionStones:640, guardianStones:1280, shards:4600, leapstones:6, bidMainMat:5, chestCost:3720, chestMainMat:6, chestDestructionStones:810, chestGuardianStones:1620, chestShards:8060, chestLeapstones:21, chestCardPack:1}], total:{gold:16500, mainMat:10, clearMedal:2300, destinyStone:4, destructionStones:1180, guardianStones:2360, shards:8600, leapstones:11, bidMainMat:5, chestCost:5540, chestMainMat:10, chestDestructionStones:1420, chestGuardianStones:2840, chestShards:13280, chestLeapstones:34, chestCardPack:1} },
+  { tier:'Tier 4', raid:'Act 2: Brelshaza', difficulty:'Solo', ilvl:1670, gates:[{gate:'Gate 1', gold:2750, rosterGold:2750, charGold:null, mainMat:4, clearMedal:1000, destinyStone:null, destructionStones:540, guardianStones:1080, shards:4000, leapstones:5, bidMainMat:null, chestCost:1820, chestMainMat:4, chestDestructionStones:610, chestGuardianStones:1220, chestShards:5220, chestLeapstones:13, chestCardPack:null}, {gate:'Gate 2', gold:5500, rosterGold:5500, charGold:null, mainMat:6, clearMedal:1300, destinyStone:4, destructionStones:640, guardianStones:1280, shards:4600, leapstones:6, bidMainMat:null, chestCost:3720, chestMainMat:6, chestDestructionStones:810, chestGuardianStones:1620, chestShards:8060, chestLeapstones:21, chestCardPack:1}], total:{gold:16500, mainMat:10, clearMedal:2300, destinyStone:4, destructionStones:1180, guardianStones:2360, shards:8600, leapstones:11, bidMainMat:null, chestCost:5540, chestMainMat:10, chestDestructionStones:1420, chestGuardianStones:2840, chestShards:13280, chestLeapstones:34, chestCardPack:1} },
+  { tier:'Tier 4', raid:'Act 1: Aegir', difficulty:'Hard', ilvl:1680, gates:[{gate:'Gate 1', gold:2750, rosterGold:2750, charGold:null, mainMat:8, clearMedal:800, destinyStone:null, destructionStones:580, guardianStones:1160, shards:4200, leapstones:6, bidMainMat:null, chestCost:1820, chestMainMat:8, chestDestructionStones:610, chestGuardianStones:1220, chestShards:5280, chestLeapstones:18, chestCardPack:null}, {gate:'Gate 2', gold:6250, rosterGold:6250, charGold:null, mainMat:12, clearMedal:1100, destinyStone:5, destructionStones:660, guardianStones:1320, shards:5400, leapstones:7, bidMainMat:10, chestCost:4150, chestMainMat:12, chestDestructionStones:940, chestGuardianStones:1880, chestShards:8930, chestLeapstones:31, chestCardPack:1}], total:{gold:18000, mainMat:20, clearMedal:1900, destinyStone:5, destructionStones:1240, guardianStones:2480, shards:9600, leapstones:13, bidMainMat:10, chestCost:5970, chestMainMat:20, chestDestructionStones:1550, chestGuardianStones:3100, chestShards:14210, chestLeapstones:49, chestCardPack:1} },
+  { tier:'Tier 4', raid:'Act 1: Aegir', difficulty:'Normal', ilvl:1660, gates:[{gate:'Gate 1', gold:1750, rosterGold:1750, charGold:null, mainMat:4, clearMedal:800, destinyStone:null, destructionStones:480, guardianStones:960, shards:3600, leapstones:4, bidMainMat:null, chestCost:750, chestMainMat:4, chestDestructionStones:310, chestGuardianStones:620, chestShards:2800, chestLeapstones:8, chestCardPack:null}, {gate:'Gate 2', gold:4000, rosterGold:4000, charGold:null, mainMat:6, clearMedal:1100, destinyStone:4, destructionStones:580, guardianStones:1160, shards:4400, leapstones:5, bidMainMat:5, chestCost:1780, chestMainMat:6, chestDestructionStones:460, chestGuardianStones:920, chestShards:4480, chestLeapstones:15, chestCardPack:1}], total:{gold:11500, mainMat:10, clearMedal:1900, destinyStone:4, destructionStones:1060, guardianStones:2120, shards:8000, leapstones:9, bidMainMat:5, chestCost:2530, chestMainMat:10, chestDestructionStones:770, chestGuardianStones:1540, chestShards:7280, chestLeapstones:23, chestCardPack:1} },
+  { tier:'Tier 4', raid:'Act 1: Aegir', difficulty:'Solo', ilvl:1660, gates:[{gate:'Gate 1', gold:1750, rosterGold:1750, charGold:null, mainMat:4, clearMedal:800, destinyStone:null, destructionStones:480, guardianStones:960, shards:3600, leapstones:4, bidMainMat:null, chestCost:750, chestMainMat:4, chestDestructionStones:310, chestGuardianStones:620, chestShards:2800, chestLeapstones:8, chestCardPack:null}, {gate:'Gate 2', gold:4000, rosterGold:4000, charGold:null, mainMat:6, clearMedal:1100, destinyStone:4, destructionStones:580, guardianStones:1160, shards:4400, leapstones:5, bidMainMat:null, chestCost:1780, chestMainMat:6, chestDestructionStones:460, chestGuardianStones:920, chestShards:4480, chestLeapstones:15, chestCardPack:1}], total:{gold:11500, mainMat:10, clearMedal:1900, destinyStone:4, destructionStones:1060, guardianStones:2120, shards:8000, leapstones:9, bidMainMat:null, chestCost:2530, chestMainMat:10, chestDestructionStones:770, chestGuardianStones:1540, chestShards:7280, chestLeapstones:23, chestCardPack:1} },
+  { tier:'Tier 4', raid:'Behemoth', difficulty:'Normal', ilvl:1620, gates:[{gate:'Gate 1', gold:1100, rosterGold:1100, charGold:null, mainMat:10, clearMedal:600, destinyStone:null, destructionStones:200, guardianStones:400, shards:2700, leapstones:null, bidMainMat:null, chestCost:1250, chestMainMat:10, chestDestructionStones:550, chestGuardianStones:1100, chestShards:3800, chestLeapstones:12, chestCardPack:null}, {gate:'Gate 2', gold:2500, rosterGold:2500, charGold:null, mainMat:20, clearMedal:800, destinyStone:3, destructionStones:260, guardianStones:520, shards:3800, leapstones:null, bidMainMat:null, chestCost:2000, chestMainMat:20, chestDestructionStones:850, chestGuardianStones:1700, chestShards:5800, chestLeapstones:19, chestCardPack:1}], total:{gold:7200, mainMat:30, clearMedal:1400, destinyStone:3, destructionStones:460, guardianStones:920, shards:6500, leapstones:null, bidMainMat:null, chestCost:3250, chestMainMat:30, chestDestructionStones:1400, chestGuardianStones:2800, chestShards:9600, chestLeapstones:31, chestCardPack:1} },
+  { tier:'Tier 4', raid:'Overture: Echidna', difficulty:'Hard', ilvl:1630, gates:[{gate:'Gate 1', gold:1100, rosterGold:1100, charGold:null, mainMat:3, clearMedal:400, destinyStone:null, destructionStones:200, guardianStones:400, shards:2700, leapstones:2, bidMainMat:null, chestCost:720, chestMainMat:3, chestDestructionStones:240, chestGuardianStones:480, chestShards:1620, chestLeapstones:7, chestCardPack:null}, {gate:'Gate 2', gold:2500, rosterGold:2500, charGold:null, mainMat:6, clearMedal:550, destinyStone:3, destructionStones:260, guardianStones:520, shards:3800, leapstones:3, bidMainMat:5, chestCost:1630, chestMainMat:6, chestDestructionStones:460, chestGuardianStones:920, chestShards:2990, chestLeapstones:20, chestCardPack:1}], total:{gold:7200, mainMat:9, clearMedal:950, destinyStone:3, destructionStones:460, guardianStones:920, shards:6500, leapstones:5, bidMainMat:5, chestCost:2350, chestMainMat:9, chestDestructionStones:700, chestGuardianStones:1400, chestShards:4610, chestLeapstones:27, chestCardPack:1} },
+  { tier:'Tier 4', raid:'Overture: Echidna', difficulty:'Normal', ilvl:1620, gates:[{gate:'Gate 1', gold:null, rosterGold:1900, charGold:null, mainMat:3, clearMedal:400, destinyStone:null, destructionStones:80, guardianStones:160, shards:1800, leapstones:1, bidMainMat:null, chestCost:310, chestMainMat:3, chestDestructionStones:90, chestGuardianStones:180, chestShards:1320, chestLeapstones:2, chestCardPack:null}, {gate:'Gate 2', gold:null, rosterGold:4200, charGold:null, mainMat:6, clearMedal:550, destinyStone:2, destructionStones:110, guardianStones:220, shards:2100, leapstones:1, bidMainMat:5, chestCost:700, chestMainMat:6, chestDestructionStones:160, chestGuardianStones:320, chestShards:1900, chestLeapstones:3, chestCardPack:1}], total:{gold:6100, mainMat:9, clearMedal:950, destinyStone:2, destructionStones:190, guardianStones:380, shards:3900, leapstones:2, bidMainMat:5, chestCost:1010, chestMainMat:9, chestDestructionStones:250, chestGuardianStones:500, chestShards:3220, chestLeapstones:5, chestCardPack:1} },
+  { tier:'Tier 4', raid:'Overture: Echidna', difficulty:'Solo', ilvl:1620, gates:[{gate:'Gate 1', gold:null, rosterGold:1900, charGold:null, mainMat:3, clearMedal:400, destinyStone:null, destructionStones:80, guardianStones:160, shards:1800, leapstones:1, bidMainMat:null, chestCost:310, chestMainMat:3, chestDestructionStones:90, chestGuardianStones:180, chestShards:1320, chestLeapstones:2, chestCardPack:null}, {gate:'Gate 2', gold:null, rosterGold:4200, charGold:null, mainMat:6, clearMedal:550, destinyStone:2, destructionStones:110, guardianStones:220, shards:2100, leapstones:1, bidMainMat:null, chestCost:700, chestMainMat:6, chestDestructionStones:160, chestGuardianStones:320, chestShards:1900, chestLeapstones:3, chestCardPack:1}], total:{gold:6100, mainMat:9, clearMedal:950, destinyStone:2, destructionStones:190, guardianStones:380, shards:3900, leapstones:2, bidMainMat:null, chestCost:1010, chestMainMat:9, chestDestructionStones:250, chestGuardianStones:500, chestShards:3220, chestLeapstones:5, chestCardPack:1} },
+  { tier:'Tier 4', raid:'Thaemine', difficulty:'Hard', ilvl:1620, gates:[{gate:'Gate 1', gold:400, rosterGold:1600, charGold:null, mainMat:null, clearMedal:250, destinyStone:null, destructionStones:80, guardianStones:160, shards:1200, leapstones:1, bidMainMat:null, chestCost:500, chestMainMat:null, chestDestructionStones:90, chestGuardianStones:180, chestShards:920, chestLeapstones:1, chestCardPack:null}, {gate:'Gate 2', gold:480, rosterGold:1920, charGold:null, mainMat:null, clearMedal:300, destinyStone:null, destructionStones:90, guardianStones:180, shards:1400, leapstones:1, bidMainMat:null, chestCost:600, chestMainMat:null, chestDestructionStones:100, chestGuardianStones:200, chestShards:1060, chestLeapstones:2, chestCardPack:null}, {gate:'Gate 3', gold:720, rosterGold:2880, charGold:null, mainMat:null, clearMedal:500, destinyStone:3, destructionStones:100, guardianStones:200, shards:1650, leapstones:1, bidMainMat:null, chestCost:900, chestMainMat:null, chestDestructionStones:130, chestGuardianStones:260, chestShards:1360, chestLeapstones:3, chestCardPack:1}, {gate:'Gate 4', gold:1000, rosterGold:4000, charGold:null, mainMat:null, clearMedal:null, destinyStone:4, destructionStones:110, guardianStones:220, shards:1800, leapstones:1, bidMainMat:null, chestCost:1250, chestMainMat:null, chestDestructionStones:180, chestGuardianStones:360, chestShards:1910, chestLeapstones:4, chestCardPack:1}], total:{gold:13000, mainMat:null, clearMedal:1050, destinyStone:7, destructionStones:380, guardianStones:760, shards:6050, leapstones:4, bidMainMat:null, chestCost:3250, chestMainMat:null, chestDestructionStones:500, chestGuardianStones:1000, chestShards:5250, chestLeapstones:10, chestCardPack:2} },
+  { tier:'Tier 3', raid:'Thaemine', difficulty:'Normal', ilvl:1610, gates:[{gate:'Gate 1', gold:320, rosterGold:1280, charGold:null, mainMat:null, clearMedal:250, destinyStone:null, destructionStones:150, guardianStones:300, shards:3000, leapstones:5, bidMainMat:null, chestCost:360, chestMainMat:null, chestDestructionStones:250, chestGuardianStones:500, chestShards:2220, chestLeapstones:9, chestCardPack:null}, {gate:'Gate 2', gold:400, rosterGold:1600, charGold:null, mainMat:null, clearMedal:300, destinyStone:null, destructionStones:180, guardianStones:360, shards:3750, leapstones:5, bidMainMat:null, chestCost:440, chestMainMat:null, chestDestructionStones:290, chestGuardianStones:580, chestShards:2880, chestLeapstones:12, chestCardPack:null}, {gate:'Gate 3', gold:560, rosterGold:2240, charGold:null, mainMat:null, clearMedal:500, destinyStone:null, destructionStones:225, guardianStones:450, shards:4500, leapstones:6, bidMainMat:null, chestCost:640, chestMainMat:null, chestDestructionStones:390, chestGuardianStones:780, chestShards:3780, chestLeapstones:13, chestCardPack:1}], total:{gold:6400, mainMat:null, clearMedal:1050, destinyStone:null, destructionStones:555, guardianStones:1110, shards:11250, leapstones:16, bidMainMat:null, chestCost:1440, chestMainMat:null, chestDestructionStones:930, chestGuardianStones:1860, chestShards:8880, chestLeapstones:34, chestCardPack:1} },
+  { tier:'Tier 3', raid:'Thaemine', difficulty:'Solo', ilvl:1610, gates:[{gate:'Gate 1', gold:null, rosterGold:1600, charGold:null, mainMat:null, clearMedal:250, destinyStone:null, destructionStones:150, guardianStones:300, shards:3000, leapstones:5, bidMainMat:null, chestCost:360, chestMainMat:null, chestDestructionStones:250, chestGuardianStones:500, chestShards:2220, chestLeapstones:9, chestCardPack:null}, {gate:'Gate 2', gold:null, rosterGold:2000, charGold:null, mainMat:null, clearMedal:300, destinyStone:null, destructionStones:180, guardianStones:360, shards:3750, leapstones:5, bidMainMat:null, chestCost:440, chestMainMat:null, chestDestructionStones:290, chestGuardianStones:580, chestShards:2880, chestLeapstones:12, chestCardPack:null}, {gate:'Gate 3', gold:null, rosterGold:2800, charGold:null, mainMat:null, clearMedal:500, destinyStone:null, destructionStones:225, guardianStones:450, shards:4500, leapstones:6, bidMainMat:null, chestCost:640, chestMainMat:null, chestDestructionStones:390, chestGuardianStones:780, chestShards:3780, chestLeapstones:13, chestCardPack:1}], total:{gold:6400, mainMat:null, clearMedal:1050, destinyStone:null, destructionStones:555, guardianStones:1110, shards:11250, leapstones:16, bidMainMat:null, chestCost:1440, chestMainMat:null, chestDestructionStones:930, chestGuardianStones:1860, chestShards:8880, chestLeapstones:34, chestCardPack:1} },
+  { tier:'Tier 3', raid:'Ivory  Tower', difficulty:'Hard', ilvl:1610, gates:[{gate:'Gate 1', gold:420, rosterGold:1680, charGold:null, mainMat:null, clearMedal:200, destinyStone:null, destructionStones:240, guardianStones:480, shards:3400, leapstones:4, bidMainMat:null, chestCost:350, chestMainMat:null, chestDestructionStones:210, chestGuardianStones:420, chestShards:5500, chestLeapstones:4, chestCardPack:null}, {gate:'Gate 2', gold:480, rosterGold:1920, charGold:null, mainMat:null, clearMedal:250, destinyStone:null, destructionStones:240, guardianStones:480, shards:3400, leapstones:4, bidMainMat:null, chestCost:500, chestMainMat:null, chestDestructionStones:210, chestGuardianStones:420, chestShards:5500, chestLeapstones:4, chestCardPack:1}, {gate:'Gate 3', gold:540, rosterGold:2160, charGold:null, mainMat:null, clearMedal:450, destinyStone:null, destructionStones:320, guardianStones:640, shards:5100, leapstones:5, bidMainMat:null, chestCost:950, chestMainMat:null, chestDestructionStones:420, chestGuardianStones:840, chestShards:7500, chestLeapstones:10, chestCardPack:1}], total:{gold:7200, mainMat:null, clearMedal:900, destinyStone:null, destructionStones:800, guardianStones:1600, shards:11900, leapstones:13, bidMainMat:null, chestCost:1800, chestMainMat:null, chestDestructionStones:840, chestGuardianStones:1680, chestShards:18500, chestLeapstones:18, chestCardPack:2} },
+  { tier:'Tier 3', raid:'Ivory  Tower', difficulty:'Normal', ilvl:1600, gates:[{gate:'Gate 1', gold:250, rosterGold:1100, charGold:null, mainMat:null, clearMedal:200, destinyStone:null, destructionStones:200, guardianStones:400, shards:3000, leapstones:3, bidMainMat:null, chestCost:180, chestMainMat:null, chestDestructionStones:150, chestGuardianStones:300, chestShards:3600, chestLeapstones:7, chestCardPack:null}, {gate:'Gate 2', gold:350, rosterGold:1400, charGold:null, mainMat:null, clearMedal:250, destinyStone:null, destructionStones:200, guardianStones:400, shards:3000, leapstones:3, bidMainMat:null, chestCost:220, chestMainMat:null, chestDestructionStones:160, chestGuardianStones:320, chestShards:3600, chestLeapstones:7, chestCardPack:1}, {gate:'Gate 3', gold:420, rosterGold:1680, charGold:null, mainMat:null, clearMedal:450, destinyStone:null, destructionStones:260, guardianStones:520, shards:4500, leapstones:4, bidMainMat:null, chestCost:300, chestMainMat:null, chestDestructionStones:230, chestGuardianStones:460, chestShards:6000, chestLeapstones:13, chestCardPack:1}], total:{gold:5200, mainMat:null, clearMedal:900, destinyStone:null, destructionStones:660, guardianStones:1320, shards:10500, leapstones:10, bidMainMat:null, chestCost:700, chestMainMat:null, chestDestructionStones:540, chestGuardianStones:1080, chestShards:13200, chestLeapstones:27, chestCardPack:2} },
+  { tier:'Tier 3', raid:'Ivory  Tower', difficulty:'Solo', ilvl:1600, gates:[{gate:'Gate 1', gold:null, rosterGold:1350, charGold:null, mainMat:null, clearMedal:200, destinyStone:null, destructionStones:200, guardianStones:400, shards:3000, leapstones:3, bidMainMat:null, chestCost:180, chestMainMat:null, chestDestructionStones:150, chestGuardianStones:300, chestShards:3600, chestLeapstones:7, chestCardPack:null}, {gate:'Gate 2', gold:null, rosterGold:1750, charGold:null, mainMat:null, clearMedal:250, destinyStone:null, destructionStones:200, guardianStones:400, shards:3000, leapstones:3, bidMainMat:null, chestCost:220, chestMainMat:null, chestDestructionStones:160, chestGuardianStones:320, chestShards:3600, chestLeapstones:7, chestCardPack:1}, {gate:'Gate 3', gold:null, rosterGold:2100, charGold:null, mainMat:null, clearMedal:450, destinyStone:null, destructionStones:260, guardianStones:520, shards:4500, leapstones:4, bidMainMat:null, chestCost:300, chestMainMat:null, chestDestructionStones:230, chestGuardianStones:460, chestShards:6000, chestLeapstones:13, chestCardPack:1}], total:{gold:5200, mainMat:null, clearMedal:900, destinyStone:null, destructionStones:660, guardianStones:1320, shards:10500, leapstones:10, bidMainMat:null, chestCost:700, chestMainMat:null, chestDestructionStones:540, chestGuardianStones:1080, chestShards:13200, chestLeapstones:27, chestCardPack:2} },
+  { tier:'Tier 3', raid:'Akkan', difficulty:'Hard', ilvl:1600, gates:[{gate:'Gate 1', gold:200, rosterGold:1300, charGold:null, mainMat:null, clearMedal:150, destinyStone:null, destructionStones:180, guardianStones:360, shards:3100, leapstones:3, bidMainMat:null, chestCost:300, chestMainMat:null, chestDestructionStones:160, chestGuardianStones:320, chestShards:3200, chestLeapstones:8, chestCardPack:null}, {gate:'Gate 2', gold:410, rosterGold:1640, charGold:null, mainMat:null, clearMedal:200, destinyStone:null, destructionStones:200, guardianStones:400, shards:3100, leapstones:3, bidMainMat:null, chestCost:500, chestMainMat:null, chestDestructionStones:200, chestGuardianStones:400, chestShards:3200, chestLeapstones:10, chestCardPack:null}, {gate:'Gate 3', gold:490, rosterGold:1960, charGold:null, mainMat:null, clearMedal:400, destinyStone:null, destructionStones:320, guardianStones:640, shards:4600, leapstones:4, bidMainMat:null, chestCost:700, chestMainMat:null, chestDestructionStones:290, chestGuardianStones:580, chestShards:4400, chestLeapstones:15, chestCardPack:1}], total:{gold:6000, mainMat:null, clearMedal:750, destinyStone:null, destructionStones:700, guardianStones:1400, shards:10800, leapstones:10, bidMainMat:null, chestCost:1500, chestMainMat:null, chestDestructionStones:650, chestGuardianStones:1300, chestShards:10800, chestLeapstones:33, chestCardPack:1} },
+  { tier:'Tier 3', raid:'Akkan', difficulty:'Normal', ilvl:1580, gates:[{gate:'Gate 1', gold:255, rosterGold:1015, charGold:null, mainMat:null, clearMedal:150, destinyStone:null, destructionStones:140, guardianStones:280, shards:2700, leapstones:2, bidMainMat:null, chestCost:190, chestMainMat:null, chestDestructionStones:140, chestGuardianStones:280, chestShards:3830, chestLeapstones:6, chestCardPack:null}, {gate:'Gate 2', gold:300, rosterGold:1300, charGold:null, mainMat:null, clearMedal:200, destinyStone:null, destructionStones:180, guardianStones:360, shards:2700, leapstones:2, bidMainMat:null, chestCost:230, chestMainMat:null, chestDestructionStones:160, chestGuardianStones:320, chestShards:3880, chestLeapstones:7, chestCardPack:null}, {gate:'Gate 3', gold:330, rosterGold:1500, charGold:null, mainMat:null, clearMedal:400, destinyStone:null, destructionStones:260, guardianStones:520, shards:4200, leapstones:3, bidMainMat:null, chestCost:330, chestMainMat:null, chestDestructionStones:230, chestGuardianStones:460, chestShards:4430, chestLeapstones:14, chestCardPack:1}], total:{gold:4700, mainMat:null, clearMedal:750, destinyStone:null, destructionStones:580, guardianStones:1160, shards:9600, leapstones:7, bidMainMat:null, chestCost:750, chestMainMat:null, chestDestructionStones:530, chestGuardianStones:1060, chestShards:12140, chestLeapstones:27, chestCardPack:1} },
+  { tier:'Tier 3', raid:'Akkan', difficulty:'Solo', ilvl:1580, gates:[{gate:'Gate 1', gold:null, rosterGold:1270, charGold:null, mainMat:null, clearMedal:150, destinyStone:null, destructionStones:140, guardianStones:280, shards:2700, leapstones:2, bidMainMat:null, chestCost:190, chestMainMat:null, chestDestructionStones:140, chestGuardianStones:280, chestShards:3830, chestLeapstones:6, chestCardPack:null}, {gate:'Gate 2', gold:null, rosterGold:1600, charGold:null, mainMat:null, clearMedal:200, destinyStone:null, destructionStones:180, guardianStones:360, shards:2700, leapstones:2, bidMainMat:null, chestCost:230, chestMainMat:null, chestDestructionStones:160, chestGuardianStones:320, chestShards:3880, chestLeapstones:7, chestCardPack:null}, {gate:'Gate 3', gold:null, rosterGold:1830, charGold:null, mainMat:null, clearMedal:400, destinyStone:null, destructionStones:260, guardianStones:520, shards:4200, leapstones:3, bidMainMat:null, chestCost:330, chestMainMat:null, chestDestructionStones:230, chestGuardianStones:460, chestShards:4430, chestLeapstones:14, chestCardPack:1}], total:{gold:4700, mainMat:null, clearMedal:750, destinyStone:null, destructionStones:580, guardianStones:1160, shards:9600, leapstones:7, bidMainMat:null, chestCost:750, chestMainMat:null, chestDestructionStones:530, chestGuardianStones:1060, chestShards:12140, chestLeapstones:27, chestCardPack:1} },
+  { tier:'Tier 3', raid:'Kayangel', difficulty:'Hard', ilvl:1580, gates:[{gate:'Gate 1', gold:150, rosterGold:1000, charGold:null, mainMat:null, clearMedal:100, destinyStone:null, destructionStones:80, guardianStones:160, shards:2500, leapstones:2, bidMainMat:null, chestCost:225, chestMainMat:null, chestDestructionStones:70, chestGuardianStones:140, chestShards:3400, chestLeapstones:3, chestCardPack:null}, {gate:'Gate 2', gold:250, rosterGold:1200, charGold:null, mainMat:null, clearMedal:150, destinyStone:null, destructionStones:120, guardianStones:240, shards:3500, leapstones:2, bidMainMat:null, chestCost:350, chestMainMat:null, chestDestructionStones:80, chestGuardianStones:160, chestShards:3400, chestLeapstones:4, chestCardPack:null}, {gate:'Gate 3', gold:400, rosterGold:1300, charGold:null, mainMat:null, clearMedal:200, destinyStone:null, destructionStones:150, guardianStones:300, shards:5000, leapstones:3, bidMainMat:null, chestCost:500, chestMainMat:null, chestDestructionStones:110, chestGuardianStones:220, chestShards:5100, chestLeapstones:6, chestCardPack:1}], total:{gold:4300, mainMat:null, clearMedal:450, destinyStone:null, destructionStones:350, guardianStones:700, shards:11000, leapstones:7, bidMainMat:null, chestCost:1075, chestMainMat:null, chestDestructionStones:260, chestGuardianStones:520, chestShards:11900, chestLeapstones:13, chestCardPack:1} },
+  { tier:'Tier 3', raid:'Kayangel', difficulty:'Normal', ilvl:1540, gates:[{gate:'Gate 1', gold:100, rosterGold:900, charGold:null, mainMat:null, clearMedal:100, destinyStone:null, destructionStones:52, guardianStones:104, shards:2100, leapstones:1, bidMainMat:null, chestCost:180, chestMainMat:null, chestDestructionStones:42, chestGuardianStones:84, chestShards:3290, chestLeapstones:2, chestCardPack:null}, {gate:'Gate 2', gold:200, rosterGold:900, charGold:null, mainMat:null, clearMedal:150, destinyStone:null, destructionStones:60, guardianStones:120, shards:2500, leapstones:1, bidMainMat:null, chestCost:200, chestMainMat:null, chestDestructionStones:52, chestGuardianStones:104, chestShards:3310, chestLeapstones:2, chestCardPack:null}, {gate:'Gate 3', gold:300, rosterGold:900, charGold:null, mainMat:null, clearMedal:200, destinyStone:null, destructionStones:80, guardianStones:160, shards:4100, leapstones:1, bidMainMat:null, chestCost:270, chestMainMat:null, chestDestructionStones:62, chestGuardianStones:124, chestShards:4990, chestLeapstones:3, chestCardPack:1}], total:{gold:3300, mainMat:null, clearMedal:450, destinyStone:null, destructionStones:192, guardianStones:384, shards:8700, leapstones:3, bidMainMat:null, chestCost:650, chestMainMat:null, chestDestructionStones:156, chestGuardianStones:312, chestShards:11590, chestLeapstones:7, chestCardPack:1} },
+  { tier:'Tier 3', raid:'Kayangel', difficulty:'Solo', ilvl:1540, gates:[{gate:'Gate 1', gold:null, rosterGold:1000, charGold:null, mainMat:null, clearMedal:100, destinyStone:null, destructionStones:52, guardianStones:104, shards:2100, leapstones:1, bidMainMat:null, chestCost:180, chestMainMat:null, chestDestructionStones:220, chestGuardianStones:440, chestShards:3500, chestLeapstones:10, chestCardPack:null}, {gate:'Gate 2', gold:null, rosterGold:1100, charGold:null, mainMat:null, clearMedal:150, destinyStone:null, destructionStones:60, guardianStones:120, shards:2500, leapstones:1, bidMainMat:null, chestCost:200, chestMainMat:null, chestDestructionStones:280, chestGuardianStones:560, chestShards:3500, chestLeapstones:12, chestCardPack:null}, {gate:'Gate 3', gold:null, rosterGold:1200, charGold:null, mainMat:null, clearMedal:200, destinyStone:null, destructionStones:80, guardianStones:160, shards:4100, leapstones:1, bidMainMat:null, chestCost:270, chestMainMat:null, chestDestructionStones:340, chestGuardianStones:680, chestShards:5500, chestLeapstones:16, chestCardPack:1}], total:{gold:3300, mainMat:null, clearMedal:450, destinyStone:null, destructionStones:192, guardianStones:384, shards:8700, leapstones:3, bidMainMat:null, chestCost:650, chestMainMat:null, chestDestructionStones:840, chestGuardianStones:1680, chestShards:12500, chestLeapstones:38, chestCardPack:1} },
+  { tier:'Tier 3', raid:'Brelshaza', difficulty:'Hard', ilvl:1540, gates:[{gate:'Gate 1', gold:210, rosterGold:970, charGold:null, mainMat:null, clearMedal:150, destinyStone:null, destructionStones:56, guardianStones:112, shards:2500, leapstones:1, bidMainMat:null, chestCost:300, chestMainMat:null, chestDestructionStones:52, chestGuardianStones:104, chestShards:3000, chestLeapstones:2, chestCardPack:null}, {gate:'Gate 2', gold:220, rosterGold:980, charGold:null, mainMat:null, clearMedal:150, destinyStone:null, destructionStones:64, guardianStones:128, shards:2500, leapstones:1, bidMainMat:null, chestCost:300, chestMainMat:null, chestDestructionStones:84, chestGuardianStones:168, chestShards:4000, chestLeapstones:3, chestCardPack:null}, {gate:'Gate 3', gold:220, rosterGold:1000, charGold:null, mainMat:null, clearMedal:150, destinyStone:null, destructionStones:80, guardianStones:160, shards:3000, leapstones:1, bidMainMat:null, chestCost:300, chestMainMat:null, chestDestructionStones:128, chestGuardianStones:256, chestShards:5200, chestLeapstones:4, chestCardPack:1}, {gate:'Gate 4', gold:350, rosterGold:1650, charGold:null, mainMat:null, clearMedal:250, destinyStone:null, destructionStones:160, guardianStones:320, shards:6000, leapstones:1, bidMainMat:null, chestCost:500, chestMainMat:null, chestDestructionStones:200, chestGuardianStones:400, chestShards:10000, chestLeapstones:8, chestCardPack:1}], total:{gold:5600, mainMat:null, clearMedal:700, destinyStone:null, destructionStones:360, guardianStones:720, shards:14000, leapstones:4, bidMainMat:null, chestCost:1400, chestMainMat:null, chestDestructionStones:464, chestGuardianStones:928, chestShards:22200, chestLeapstones:17, chestCardPack:2} },
+  { tier:'Tier 3', raid:'Brelshaza', difficulty:'Normal', ilvl:1490, gates:[{gate:'Gate 1', gold:170, rosterGold:810, charGold:null, mainMat:null, clearMedal:150, destinyStone:null, destructionStones:24, guardianStones:48, shards:1100, leapstones:1, bidMainMat:null, chestCost:100, chestMainMat:null, chestDestructionStones:24, chestGuardianStones:48, chestShards:3000, chestLeapstones:1, chestCardPack:null}, {gate:'Gate 2', gold:180, rosterGold:820, charGold:null, mainMat:null, clearMedal:150, destinyStone:null, destructionStones:24, guardianStones:48, shards:1300, leapstones:1, bidMainMat:null, chestCost:150, chestMainMat:null, chestDestructionStones:36, chestGuardianStones:72, chestShards:3000, chestLeapstones:2, chestCardPack:null}, {gate:'Gate 3', gold:200, rosterGold:820, charGold:null, mainMat:null, clearMedal:150, destinyStone:null, destructionStones:28, guardianStones:56, shards:1600, leapstones:1, bidMainMat:null, chestCost:200, chestMainMat:null, chestDestructionStones:60, chestGuardianStones:120, chestShards:4000, chestLeapstones:3, chestCardPack:1}, {gate:'Gate 4', gold:300, rosterGold:1300, charGold:null, mainMat:null, clearMedal:250, destinyStone:null, destructionStones:84, guardianStones:168, shards:3000, leapstones:1, bidMainMat:null, chestCost:375, chestMainMat:null, chestDestructionStones:120, chestGuardianStones:240, chestShards:7000, chestLeapstones:5, chestCardPack:1}], total:{gold:4600, mainMat:null, clearMedal:700, destinyStone:null, destructionStones:160, guardianStones:320, shards:7000, leapstones:4, bidMainMat:null, chestCost:825, chestMainMat:null, chestDestructionStones:240, chestGuardianStones:480, chestShards:17000, chestLeapstones:11, chestCardPack:2} },
+  { tier:'Tier 3', raid:'Brelshaza', difficulty:'Solo', ilvl:1490, gates:[{gate:'Gate 1', gold:null, rosterGold:980, charGold:null, mainMat:null, clearMedal:150, destinyStone:null, destructionStones:24, guardianStones:48, shards:1100, leapstones:1, bidMainMat:null, chestCost:100, chestMainMat:null, chestDestructionStones:24, chestGuardianStones:48, chestShards:3000, chestLeapstones:1, chestCardPack:null}, {gate:'Gate 2', gold:null, rosterGold:1000, charGold:null, mainMat:null, clearMedal:150, destinyStone:null, destructionStones:24, guardianStones:48, shards:1300, leapstones:1, bidMainMat:null, chestCost:150, chestMainMat:null, chestDestructionStones:36, chestGuardianStones:72, chestShards:3000, chestLeapstones:2, chestCardPack:null}, {gate:'Gate 3', gold:null, rosterGold:1020, charGold:null, mainMat:null, clearMedal:150, destinyStone:null, destructionStones:28, guardianStones:56, shards:1600, leapstones:1, bidMainMat:null, chestCost:200, chestMainMat:null, chestDestructionStones:60, chestGuardianStones:120, chestShards:4000, chestLeapstones:3, chestCardPack:1}, {gate:'Gate 4', gold:null, rosterGold:1600, charGold:null, mainMat:null, clearMedal:250, destinyStone:null, destructionStones:84, guardianStones:168, shards:3000, leapstones:1, bidMainMat:null, chestCost:375, chestMainMat:null, chestDestructionStones:120, chestGuardianStones:240, chestShards:7000, chestLeapstones:5, chestCardPack:1}], total:{gold:4600, mainMat:null, clearMedal:700, destinyStone:null, destructionStones:160, guardianStones:320, shards:7000, leapstones:4, bidMainMat:null, chestCost:825, chestMainMat:null, chestDestructionStones:240, chestGuardianStones:480, chestShards:17000, chestLeapstones:11, chestCardPack:2} },
+  { tier:'Tier 3', raid:'Kakul- Saydon', difficulty:'Normal', ilvl:1475, gates:[{gate:'Gate 1', gold:70, rosterGold:330, charGold:null, mainMat:null, clearMedal:60, destinyStone:null, destructionStones:10, guardianStones:20, shards:1000, leapstones:1, bidMainMat:null, chestCost:100, chestMainMat:null, chestDestructionStones:14, chestGuardianStones:28, chestShards:2200, chestLeapstones:1, chestCardPack:null}, {gate:'Gate 2', gold:100, rosterGold:500, charGold:null, mainMat:null, clearMedal:90, destinyStone:null, destructionStones:10, guardianStones:20, shards:1000, leapstones:1, bidMainMat:null, chestCost:150, chestMainMat:null, chestDestructionStones:19, chestGuardianStones:38, chestShards:2200, chestLeapstones:1, chestCardPack:null}, {gate:'Gate 3', gold:180, rosterGold:820, charGold:null, mainMat:null, clearMedal:150, destinyStone:null, destructionStones:11, guardianStones:22, shards:1000, leapstones:1, bidMainMat:null, chestCost:200, chestMainMat:null, chestDestructionStones:24, chestGuardianStones:48, chestShards:2600, chestLeapstones:1, chestCardPack:1}], total:{gold:2000, mainMat:null, clearMedal:300, destinyStone:null, destructionStones:31, guardianStones:62, shards:3000, leapstones:3, bidMainMat:null, chestCost:450, chestMainMat:null, chestDestructionStones:57, chestGuardianStones:114, chestShards:7000, chestLeapstones:3, chestCardPack:1} },
+  { tier:'Tier 3', raid:'Kakul- Saydon', difficulty:'Solo', ilvl:1475, gates:[{gate:'Gate 1', gold:null, rosterGold:400, charGold:null, mainMat:null, clearMedal:60, destinyStone:null, destructionStones:10, guardianStones:20, shards:1000, leapstones:1, bidMainMat:null, chestCost:100, chestMainMat:null, chestDestructionStones:14, chestGuardianStones:28, chestShards:2200, chestLeapstones:1, chestCardPack:null}, {gate:'Gate 2', gold:null, rosterGold:600, charGold:null, mainMat:null, clearMedal:90, destinyStone:null, destructionStones:10, guardianStones:20, shards:1000, leapstones:1, bidMainMat:null, chestCost:150, chestMainMat:null, chestDestructionStones:19, chestGuardianStones:38, chestShards:2200, chestLeapstones:1, chestCardPack:null}, {gate:'Gate 3', gold:null, rosterGold:1000, charGold:null, mainMat:null, clearMedal:150, destinyStone:null, destructionStones:11, guardianStones:22, shards:1000, leapstones:1, bidMainMat:null, chestCost:200, chestMainMat:null, chestDestructionStones:24, chestGuardianStones:48, chestShards:2600, chestLeapstones:1, chestCardPack:1}], total:{gold:2000, mainMat:null, clearMedal:300, destinyStone:null, destructionStones:31, guardianStones:62, shards:3000, leapstones:3, bidMainMat:null, chestCost:450, chestMainMat:null, chestDestructionStones:57, chestGuardianStones:114, chestShards:7000, chestLeapstones:3, chestCardPack:1} },
+  { tier:'Tier 3', raid:'Vykas', difficulty:'Hard', ilvl:1460, gates:[{gate:'Gate 1', gold:80, rosterGold:420, charGold:null, mainMat:null, clearMedal:60, destinyStone:null, destructionStones:11, guardianStones:22, shards:850, leapstones:1, bidMainMat:null, chestCost:225, chestMainMat:null, chestDestructionStones:18, chestGuardianStones:38, chestShards:1600, chestLeapstones:1, chestCardPack:null}, {gate:'Gate 2', gold:170, rosterGold:830, charGold:null, mainMat:null, clearMedal:100, destinyStone:null, destructionStones:14, guardianStones:28, shards:1150, leapstones:1, bidMainMat:null, chestCost:375, chestMainMat:null, chestDestructionStones:21, chestGuardianStones:42, chestShards:2000, chestLeapstones:1, chestCardPack:1}], total:{gold:1500, mainMat:null, clearMedal:160, destinyStone:null, destructionStones:25, guardianStones:50, shards:2000, leapstones:2, bidMainMat:null, chestCost:600, chestMainMat:null, chestDestructionStones:39, chestGuardianStones:80, chestShards:3600, chestLeapstones:2, chestCardPack:1} },
+  { tier:'Tier 3', raid:'Vykas', difficulty:'Normal', ilvl:1430, gates:[{gate:'Gate 1', gold:50, rosterGold:300, charGold:null, mainMat:null, clearMedal:60, destinyStone:null, destructionStones:10, guardianStones:20, shards:700, leapstones:1, bidMainMat:null, chestCost:100, chestMainMat:null, chestDestructionStones:14, chestGuardianStones:28, chestShards:800, chestLeapstones:1, chestCardPack:null}, {gate:'Gate 2', gold:100, rosterGold:550, charGold:null, mainMat:null, clearMedal:100, destinyStone:null, destructionStones:11, guardianStones:22, shards:1100, leapstones:1, bidMainMat:null, chestCost:150, chestMainMat:null, chestDestructionStones:17, chestGuardianStones:34, chestShards:1200, chestLeapstones:1, chestCardPack:1}], total:{gold:1000, mainMat:null, clearMedal:160, destinyStone:null, destructionStones:21, guardianStones:42, shards:1800, leapstones:2, bidMainMat:null, chestCost:250, chestMainMat:null, chestDestructionStones:31, chestGuardianStones:62, chestShards:2000, chestLeapstones:2, chestCardPack:1} },
+  { tier:'Tier 3', raid:'Vykas', difficulty:'Solo', ilvl:1430, gates:[{gate:'Gate 1', gold:null, rosterGold:350, charGold:null, mainMat:null, clearMedal:60, destinyStone:null, destructionStones:10, guardianStones:20, shards:700, leapstones:1, bidMainMat:null, chestCost:100, chestMainMat:null, chestDestructionStones:14, chestGuardianStones:28, chestShards:800, chestLeapstones:1, chestCardPack:null}, {gate:'Gate 2', gold:null, rosterGold:650, charGold:null, mainMat:null, clearMedal:100, destinyStone:null, destructionStones:11, guardianStones:22, shards:1100, leapstones:1, bidMainMat:null, chestCost:150, chestMainMat:null, chestDestructionStones:17, chestGuardianStones:34, chestShards:1200, chestLeapstones:1, chestCardPack:1}], total:{gold:1000, mainMat:null, clearMedal:160, destinyStone:null, destructionStones:21, guardianStones:42, shards:1800, leapstones:2, bidMainMat:null, chestCost:250, chestMainMat:null, chestDestructionStones:31, chestGuardianStones:62, chestShards:2000, chestLeapstones:2, chestCardPack:1} },
+  { tier:'Tier 3', raid:'Valtan', difficulty:'Hard', ilvl:1445, gates:[{gate:'Gate 1', gold:70, rosterGold:330, charGold:null, mainMat:null, clearMedal:50, destinyStone:null, destructionStones:10, guardianStones:20, shards:750, leapstones:1, bidMainMat:null, chestCost:175, chestMainMat:null, chestDestructionStones:14, chestGuardianStones:28, chestShards:1300, chestLeapstones:1, chestCardPack:null}, {gate:'Gate 2', gold:130, rosterGold:570, charGold:null, mainMat:null, clearMedal:70, destinyStone:null, destructionStones:12, guardianStones:24, shards:1100, leapstones:1, bidMainMat:null, chestCost:275, chestMainMat:null, chestDestructionStones:19, chestGuardianStones:38, chestShards:1600, chestLeapstones:1, chestCardPack:1}], total:{gold:1100, mainMat:null, clearMedal:120, destinyStone:null, destructionStones:22, guardianStones:44, shards:1850, leapstones:2, bidMainMat:null, chestCost:450, chestMainMat:null, chestDestructionStones:33, chestGuardianStones:66, chestShards:2900, chestLeapstones:2, chestCardPack:1} },
+  { tier:'Tier 3', raid:'Valtan', difficulty:'Normal', ilvl:1415, gates:[{gate:'Gate 1', gold:40, rosterGold:250, charGold:null, mainMat:null, clearMedal:50, destinyStone:null, destructionStones:8, guardianStones:16, shards:600, leapstones:1, bidMainMat:null, chestCost:75, chestMainMat:null, chestDestructionStones:11, chestGuardianStones:22, chestShards:600, chestLeapstones:1, chestCardPack:null}, {gate:'Gate 2', gold:60, rosterGold:400, charGold:null, mainMat:null, clearMedal:70, destinyStone:null, destructionStones:10, guardianStones:20, shards:900, leapstones:1, bidMainMat:null, chestCost:100, chestMainMat:null, chestDestructionStones:14, chestGuardianStones:28, chestShards:900, chestLeapstones:1, chestCardPack:1}], total:{gold:750, mainMat:null, clearMedal:120, destinyStone:null, destructionStones:18, guardianStones:36, shards:1500, leapstones:2, bidMainMat:null, chestCost:175, chestMainMat:null, chestDestructionStones:25, chestGuardianStones:50, chestShards:1500, chestLeapstones:2, chestCardPack:1} },
+  { tier:'Tier 3', raid:'Valtan', difficulty:'Solo', ilvl:1415, gates:[{gate:'Gate 1', gold:null, rosterGold:290, charGold:null, mainMat:null, clearMedal:50, destinyStone:null, destructionStones:8, guardianStones:16, shards:600, leapstones:1, bidMainMat:null, chestCost:75, chestMainMat:null, chestDestructionStones:11, chestGuardianStones:22, chestShards:600, chestLeapstones:1, chestCardPack:null}, {gate:'Gate 2', gold:null, rosterGold:460, charGold:null, mainMat:null, clearMedal:70, destinyStone:null, destructionStones:10, guardianStones:20, shards:900, leapstones:1, bidMainMat:null, chestCost:100, chestMainMat:null, chestDestructionStones:14, chestGuardianStones:28, chestShards:900, chestLeapstones:1, chestCardPack:1}], total:{gold:750, mainMat:null, clearMedal:120, destinyStone:null, destructionStones:18, guardianStones:36, shards:1500, leapstones:2, bidMainMat:null, chestCost:175, chestMainMat:null, chestDestructionStones:25, chestGuardianStones:50, chestShards:1500, chestLeapstones:2, chestCardPack:1} },
+];
+
 const raidById = {};
 RAID_DATA.forEach(r => raidById[r.id] = r);
+
+/* =========================================================
+   CHAOS DUNGEON DATA (parsed from "Daily Chaos" sheet)
+   ========================================================= */
+const CHAOS_DATA = [
+  { zone:'Chaos Rift',     tier:'Tier 4.5', continent:'South Rimeria', ilvl:1750, destructionStones:361, guardianStones:1165, leapstones:19, shards:54762, silver:218749 },
+  { zone:'Chaos Rift',     tier:'Tier 4.5', continent:'South Rimeria', ilvl:1730, destructionStones:313, guardianStones:1035, leapstones:16, shards:42447, silver:211350 },
+  { zone:'Kurzan Front',   tier:'Tier 4',   continent:'North Kurzan',  ilvl:1720, destructionStones:674, guardianStones:2181, leapstones:48, shards:42654, silver:200158 },
+  { zone:'Kurzan Front',   tier:'Tier 4',   continent:'North Kurzan',  ilvl:1700, destructionStones:630, guardianStones:1671, leapstones:41, shards:33510, silver:192386 },
+  { zone:'Kurzan Front',   tier:'Tier 4',   continent:'North Kurzan',  ilvl:1680, destructionStones:475, guardianStones:1274, leapstones:35, shards:33684, silver:197508 },
+  { zone:'Kurzan Front',   tier:'Tier 4',   continent:'North Kurzan',  ilvl:1660, destructionStones:345, guardianStones:1170, leapstones:27, shards:23100, silver:180143 },
+  { zone:'Kurzan Front',   tier:'Tier 4',   continent:'North Kurzan',  ilvl:1640, destructionStones:366, guardianStones:934,  leapstones:21, shards:17767, silver:175468 }
+];
+
+/* =========================================================
+   GUARDIAN RAID DATA (parsed from "Guardian Raids" sheet)
+   ========================================================= */
+const GUARDIAN_DATA = [
+  { tier:'Tier 4.5', name:'GR Rotation', ilvl:1750, gems:'11-12', gemShards:40, accessories:'0-2', bracelets:15, abilityStones:'1-2', silver:57500 },
+  { tier:'Tier 4.5', name:'GR Rotation', ilvl:1730, gems:'10-11', gemShards:35, accessories:'0-2', bracelets:15, abilityStones:'1-2', silver:55000 },
+  { tier:'Tier 4',   name:'Krathios',    ilvl:1720, gems:'6-7',   gemShards:20, accessories:'0-2', bracelets:15, abilityStones:'1-2', silver:50275 },
+  { tier:'Tier 4',   name:'Drextalas',   ilvl:1700, gems:'5-6',   gemShards:15, accessories:'0-2', bracelets:10, abilityStones:'1-2', silver:46295 },
+  { tier:'Tier 4',   name:'Skolakia',    ilvl:1680, gems:'4-5',   gemShards:10, accessories:'0-2', bracelets:15, abilityStones:'1-2', silver:40687 },
+  { tier:'Tier 4',   name:'Argeos',      ilvl:1640, gems:'2-3',   gemShards:5,  accessories:'0-2', bracelets:10, abilityStones:'0-2', silver:34976 }
+];
+
+/* =========================================================
+   PARADISE (Tower) REWARDS — ilvl 1750
+   ========================================================= */
+const PARADISE_ICON_SLOTS_HELL = [
+  { key:'pick1_a',    label:'Pick One — A',      tint:'sky' },
+  { key:'pick1_b',    label:'Pick One — B',      tint:'coral' },
+  { key:'pick2_a',    label:'Pick Two — A',      tint:'sky' },
+  { key:'pick2_b',    label:'Pick Two — B',      tint:'amber' },
+  { key:'gold_pouch', label:'Gold Pouch',        tint:'amber' },
+  { key:'pink_gem',   label:'Pink Gem',          tint:'pink' },
+  { key:'coin',       label:'Coin',              tint:'amber' },
+  { key:'purple_orb', label:'Purple Orb',        tint:'purple' },
+  { key:'teal_frag',  label:'Teal Fragment',     tint:'teal' },
+  { key:'selectable', label:'Selectable',        tint:'muted' },
+  { key:'karma_a',    label:'Karma/Quality — A', tint:'coral' },
+  { key:'karma_b',    label:'Karma/Quality — B', tint:'sky' },
+  { key:'karma_c',    label:'Karma/Quality — C', tint:'purple' },
+  { key:'select',     label:'Select',            tint:'pink' },
+  { key:'bonus',      label:'Bonus (Floor 50+)', tint:'amber' }
+];
+
+const PARADISE_ICON_SLOTS_NETHERWORLD = [
+  { key:'nw_coin',        label:'Coin',                tint:'amber' },
+  { key:'nw_random_bound',label:'Random & Bound',      tint:'amber' },
+  { key:'nw_pick_a',      label:'Pick — A',             tint:'sky' },
+  { key:'nw_pick_b',      label:'Pick — B',             tint:'coral' },
+  { key:'nw_card_a',      label:'Card — A',             tint:'purple' },
+  { key:'nw_card_b',      label:'Card — B',             tint:'purple' },
+  { key:'nw_card_c',      label:'Card — C',             tint:'purple' },
+  { key:'nw_karma_a',     label:'Karma/Quality — A',    tint:'coral' },
+  { key:'nw_karma_b',     label:'Karma/Quality — B',    tint:'sky' },
+  { key:'nw_karma_c',     label:'Karma/Quality — C',    tint:'purple' },
+  { key:'nw_ring',        label:'Ring Material',        tint:'teal' },
+  { key:'nw_selectable',  label:'Selectable',           tint:'muted' },
+  { key:'nw_select',      label:'Select (Floor 1-79)',  tint:'pink' },
+  { key:'nw_lv8_bound',   label:'Lv. 8 (Bound, Floor 80+)', tint:'purple' }
+];
+
+// Union of every slot key across categories, used for import validation.
+function allParadiseIconSlots(){
+  return PARADISE_ICON_SLOTS_HELL.concat(PARADISE_ICON_SLOTS_NETHERWORLD);
+}
+
+function currentParadiseIconSlots(){
+  return paradiseCategory === 'netherworld' ? PARADISE_ICON_SLOTS_NETHERWORLD : PARADISE_ICON_SLOTS_HELL;
+}
+
+const PARADISE_TABLE_1750 = [
+  { floor:'Floor 1 - 9',   pick1a:1800,  pick1b:600,   pick2a:36,   pick2b:12,  goldPouch:75,    pinkGem:30,   coin:5500,   purpleOrb:28,   tealFrag:9,   selectable:9,   karmaA:7,   karmaB:7,   karmaC:9,   select:3, bonus:null },
+  { floor:'Floor 10 - 19', pick1a:2250,  pick1b:750,   pick2a:54,   pick2b:18,  goldPouch:110,   pinkGem:42,   coin:8200,   purpleOrb:45,   tealFrag:12,  selectable:12,  karmaA:10,  karmaB:10,  karmaC:13,  select:6, bonus:null },
+  { floor:'Floor 20 - 29', pick1a:3300,  pick1b:1100,  pick2a:72,   pick2b:24,  goldPouch:150,   pinkGem:56,   coin:11000,  purpleOrb:62,   tealFrag:15,  selectable:18,  karmaA:15,  karmaB:15,  karmaC:18,  select:8, bonus:null },
+  { floor:'Floor 30 - 39', pick1a:4500,  pick1b:1500,  pick2a:90,   pick2b:30,  goldPouch:200,   pinkGem:76,   coin:14400,  purpleOrb:84,   tealFrag:18,  selectable:25,  karmaA:20,  karmaB:20,  karmaC:24,  select:12, bonus:null },
+  { floor:'Floor 40 - 49', pick1a:6000,  pick1b:2000,  pick2a:120,  pick2b:40,  goldPouch:270,   pinkGem:108,  coin:19200,  purpleOrb:115,  tealFrag:27,  selectable:33,  karmaA:27,  karmaB:27,  karmaC:33,  select:1, bonus:null },
+  { floor:'Floor 50 - 59', pick1a:8100,  pick1b:2700,  pick2a:180,  pick2b:60,  goldPouch:360,   pinkGem:160,  coin:26400,  purpleOrb:155,  tealFrag:36,  selectable:45,  karmaA:36,  karmaB:36,  karmaC:45,  select:2, bonus:2 },
+  { floor:'Floor 60 - 69', pick1a:10800, pick1b:3600,  pick2a:270,  pick2b:90,  goldPouch:540,   pinkGem:230,  coin:38400,  purpleOrb:220,  tealFrag:45,  selectable:60,  karmaA:54,  karmaB:54,  karmaC:72,  select:3, bonus:4 },
+  { floor:'Floor 70 - 79', pick1a:16200, pick1b:5400,  pick2a:390,  pick2b:130, goldPouch:720,   pinkGem:320,  coin:54000,  purpleOrb:310,  tealFrag:65,  selectable:80,  karmaA:72,  karmaB:72,  karmaC:90,  select:4, bonus:7 },
+  { floor:'Floor 80 - 89', pick1a:23400, pick1b:7800,  pick2a:540,  pick2b:180, goldPouch:1000,  pinkGem:450,  coin:78000,  purpleOrb:430,  tealFrag:90,  selectable:110, karmaA:100, karmaB:100, karmaC:120, select:5, bonus:10 },
+  { floor:'Floor 90 - 99', pick1a:32400, pick1b:10800, pick2a:780,  pick2b:260, goldPouch:1440,  pinkGem:650,  coin:114000, purpleOrb:600,  tealFrag:130, selectable:150, karmaA:144, karmaB:144, karmaC:180, select:6, bonus:15 },
+  { floor:'Floor 100',     pick1a:54000, pick1b:18000, pick2a:1140, pick2b:380, goldPouch:2400,  pinkGem:1000, coin:156000, purpleOrb:1000, tealFrag:220, selectable:230, karmaA:250, karmaB:250, karmaC:300, select:7, bonus:20 }
+];
+
+const PARADISE_TABLE_HELL_1730 = [
+  { floor:'Floor 1 - 9',   pick1a:1500,  pick1b:500,   pick2a:30,  pick2b:10,  goldPouch:60,   pinkGem:25,  coin:4500,   purpleOrb:24,  tealFrag:8,   selectable:8,   karmaA:7,   karmaB:7,   karmaC:7,   select:2, bonus:null },
+  { floor:'Floor 10 - 19', pick1a:1800,  pick1b:600,   pick2a:45,  pick2b:15,  goldPouch:90,   pinkGem:36,  coin:7200,   purpleOrb:40,  tealFrag:10,  selectable:10,  karmaA:10,  karmaB:10,  karmaC:12,  select:5, bonus:null },
+  { floor:'Floor 20 - 29', pick1a:2700,  pick1b:900,   pick2a:60,  pick2b:20,  goldPouch:125,  pinkGem:48,  coin:9500,   purpleOrb:56,  tealFrag:13,  selectable:15,  karmaA:15,  karmaB:15,  karmaC:15,  select:7, bonus:null },
+  { floor:'Floor 30 - 39', pick1a:3600,  pick1b:1200,  pick2a:75,  pick2b:25,  goldPouch:150,  pinkGem:64,  coin:12000,  purpleOrb:70,  tealFrag:16,  selectable:20,  karmaA:20,  karmaB:20,  karmaC:18,  select:10, bonus:null },
+  { floor:'Floor 40 - 49', pick1a:4800,  pick1b:1600,  pick2a:108, pick2b:36,  goldPouch:225,  pinkGem:90,  coin:16000,  purpleOrb:96,  tealFrag:24,  selectable:25,  karmaA:27,  karmaB:27,  karmaC:27,  select:15, bonus:null },
+  { floor:'Floor 50 - 59', pick1a:6600,  pick1b:2200,  pick2a:144, pick2b:48,  goldPouch:300,  pinkGem:130, coin:22000,  purpleOrb:130, tealFrag:32,  selectable:30,  karmaA:36,  karmaB:36,  karmaC:36,  select:1, bonus:2 },
+  { floor:'Floor 60 - 69', pick1a:9000,  pick1b:3000,  pick2a:216, pick2b:72,  goldPouch:450,  pinkGem:190, coin:32000,  purpleOrb:180, tealFrag:42,  selectable:45,  karmaA:54,  karmaB:54,  karmaC:54,  select:2, bonus:4 },
+  { floor:'Floor 70 - 79', pick1a:13500, pick1b:4500,  pick2a:288, pick2b:96,  goldPouch:600,  pinkGem:250, coin:45000,  purpleOrb:260, tealFrag:60,  selectable:60,  karmaA:72,  karmaB:72,  karmaC:72,  select:3, bonus:7 },
+  { floor:'Floor 80 - 89', pick1a:19500, pick1b:6500,  pick2a:396, pick2b:132, goldPouch:850,  pinkGem:350, coin:65000,  purpleOrb:360, tealFrag:80,  selectable:80,  karmaA:100, karmaB:100, karmaC:100, select:4, bonus:10 },
+  { floor:'Floor 90 - 99', pick1a:27000, pick1b:9000,  pick2a:576, pick2b:192, goldPouch:1200, pinkGem:500, coin:95000,  purpleOrb:500, tealFrag:120, selectable:120, karmaA:144, karmaB:144, karmaC:150, select:5, bonus:15 },
+  { floor:'Floor 100',     pick1a:45000, pick1b:15000, pick2a:960, pick2b:320, goldPouch:2000, pinkGem:850, coin:130000, purpleOrb:850, tealFrag:200, selectable:200, karmaA:250, karmaB:250, karmaC:240, select:6, bonus:20 }
+];
+
+const PARADISE_TABLE_HELL_1700 = [
+  { floor:'Floor 1 - 9',   pick1a:6000,   pick1b:2000,  pick2a:27,  pick2b:9,   goldPouch:100,  pinkGem:12500,  coin:4000,   purpleOrb:90,   tealFrag:7,   selectable:6,   karmaA:7,   karmaB:7,   karmaC:6,   select:1,  bonus:null },
+  { floor:'Floor 10 - 19', pick1a:9000,   pick1b:3000,  pick2a:39,  pick2b:13,  goldPouch:130,  pinkGem:18000,  coin:6000,   purpleOrb:140,  tealFrag:9,   selectable:8,   karmaA:10,  karmaB:10,  karmaC:9,   select:2,  bonus:null },
+  { floor:'Floor 20 - 29', pick1a:12000,  pick1b:4000,  pick2a:54,  pick2b:18,  goldPouch:170,  pinkGem:24000,  coin:8000,   purpleOrb:190,  tealFrag:12,  selectable:10,  karmaA:15,  karmaB:15,  karmaC:12,  select:3,  bonus:null },
+  { floor:'Floor 30 - 39', pick1a:15000,  pick1b:5000,  pick2a:69,  pick2b:23,  goldPouch:220,  pinkGem:30000,  coin:10000,  purpleOrb:240,  tealFrag:15,  selectable:12,  karmaA:20,  karmaB:20,  karmaC:15,  select:4,  bonus:null },
+  { floor:'Floor 40 - 49', pick1a:22500,  pick1b:7500,  pick2a:99,  pick2b:33,  goldPouch:330,  pinkGem:46000,  coin:14000,  purpleOrb:360,  tealFrag:22,  selectable:18,  karmaA:27,  karmaB:27,  karmaC:20,  select:5,  bonus:null },
+  { floor:'Floor 50 - 59', pick1a:33000,  pick1b:11000, pick2a:135, pick2b:45,  goldPouch:450,  pinkGem:60000,  coin:20000,  purpleOrb:500,  tealFrag:30,  selectable:24,  karmaA:36,  karmaB:36,  karmaC:30,  select:6,  bonus:2 },
+  { floor:'Floor 60 - 69', pick1a:45000,  pick1b:15000, pick2a:195, pick2b:65,  goldPouch:660,  pinkGem:90000,  coin:30000,  purpleOrb:700,  tealFrag:40,  selectable:36,  karmaA:54,  karmaB:54,  karmaC:45,  select:7,  bonus:4 },
+  { floor:'Floor 70 - 79', pick1a:60000,  pick1b:20000, pick2a:255, pick2b:85,  goldPouch:880,  pinkGem:125000, coin:42000,  purpleOrb:900,  tealFrag:55,  selectable:48,  karmaA:72,  karmaB:72,  karmaC:60,  select:8,  bonus:7 },
+  { floor:'Floor 80 - 89', pick1a:84000,  pick1b:28000, pick2a:360, pick2b:120, goldPouch:1200, pinkGem:170000, coin:60000,  purpleOrb:1300, tealFrag:75,  selectable:60,  karmaA:100, karmaB:100, karmaC:80,  select:9,  bonus:10 },
+  { floor:'Floor 90 - 99', pick1a:120000, pick1b:40000, pick2a:510, pick2b:170, goldPouch:1700, pinkGem:240000, coin:80000,  purpleOrb:1800, tealFrag:110, selectable:90,  karmaA:144, karmaB:144, karmaC:120, select:10, bonus:15 },
+  { floor:'Floor 100',     pick1a:195000, pick1b:65000, pick2a:840, pick2b:280, goldPouch:2800, pinkGem:420000, coin:115000, purpleOrb:3000, tealFrag:180, selectable:150, karmaA:250, karmaB:250, karmaC:200, select:11, bonus:20 }
+];
+
+const PARADISE_TABLE_HELL_1680 = [
+  { floor:'Floor 1 - 9',   pick1a:5400,   pick1b:1800,  pick2a:24,  pick2b:8,   goldPouch:85,   pinkGem:12000,  coin:3500,   purpleOrb:80,   tealFrag:6,   selectable:4,   karmaA:7,   karmaB:7,   karmaC:4,   select:null, bonus:null },
+  { floor:'Floor 10 - 19', pick1a:7500,   pick1b:2500,  pick2a:36,  pick2b:12,  goldPouch:125,  pinkGem:16000,  coin:5500,   purpleOrb:130,  tealFrag:8,   selectable:6,   karmaA:10,  karmaB:10,  karmaC:6,   select:null, bonus:null },
+  { floor:'Floor 20 - 29', pick1a:10500,  pick1b:3500,  pick2a:45,  pick2b:15,  goldPouch:165,  pinkGem:21000,  coin:7500,   purpleOrb:180,  tealFrag:10,  selectable:8,   karmaA:15,  karmaB:15,  karmaC:9,   select:null, bonus:null },
+  { floor:'Floor 30 - 39', pick1a:12600,  pick1b:4200,  pick2a:60,  pick2b:20,  goldPouch:210,  pinkGem:27000,  coin:9000,   purpleOrb:210,  tealFrag:12,  selectable:10,  karmaA:20,  karmaB:20,  karmaC:12,  select:null, bonus:null },
+  { floor:'Floor 40 - 49', pick1a:19200,  pick1b:6400,  pick2a:90,  pick2b:30,  goldPouch:310,  pinkGem:42000,  coin:13500,  purpleOrb:320,  tealFrag:18,  selectable:15,  karmaA:27,  karmaB:27,  karmaC:15,  select:null, bonus:null },
+  { floor:'Floor 50 - 59', pick1a:25500,  pick1b:8500,  pick2a:120, pick2b:40,  goldPouch:415,  pinkGem:56000,  coin:18000,  purpleOrb:430,  tealFrag:25,  selectable:20,  karmaA:36,  karmaB:36,  karmaC:20,  select:null, bonus:2 },
+  { floor:'Floor 60 - 69', pick1a:36000,  pick1b:12000, pick2a:180, pick2b:60,  goldPouch:630,  pinkGem:84000,  coin:27000,  purpleOrb:650,  tealFrag:35,  selectable:30,  karmaA:54,  karmaB:54,  karmaC:30,  select:null, bonus:4 },
+  { floor:'Floor 70 - 79', pick1a:54000,  pick1b:18000, pick2a:225, pick2b:75,  goldPouch:830,  pinkGem:120000, coin:36000,  purpleOrb:860,  tealFrag:50,  selectable:40,  karmaA:72,  karmaB:72,  karmaC:45,  select:null, bonus:7 },
+  { floor:'Floor 80 - 89', pick1a:72000,  pick1b:24000, pick2a:315, pick2b:105, goldPouch:1150, pinkGem:160000, coin:50000,  purpleOrb:1200, tealFrag:70,  selectable:60,  karmaA:100, karmaB:100, karmaC:60,  select:null, bonus:10 },
+  { floor:'Floor 90 - 99', pick1a:105000, pick1b:35000, pick2a:465, pick2b:155, goldPouch:1650, pinkGem:220000, coin:72000,  purpleOrb:1700, tealFrag:90,  selectable:80,  karmaA:144, karmaB:144, karmaC:90,  select:null, bonus:15 },
+  { floor:'Floor 100',     pick1a:168000, pick1b:56000, pick2a:768, pick2b:256, goldPouch:2750, pinkGem:380000, coin:108000, purpleOrb:2800, tealFrag:150, selectable:120, karmaA:250, karmaB:250, karmaC:150, select:null, bonus:20 }
+];
+
+const PARADISE_TABLE_HELL_1640 = [
+  { floor:'Floor 1 - 9',   pick1a:3000,   pick1b:1000,  pick2a:18,  pick2b:6,   goldPouch:60,   pinkGem:8000,   coin:3200,   purpleOrb:60,   tealFrag:4,   selectable:2,   karmaA:7,   karmaB:7,   karmaC:2,   select:null, bonus:null },
+  { floor:'Floor 10 - 19', pick1a:4500,   pick1b:1500,  pick2a:27,  pick2b:9,   goldPouch:90,   pinkGem:12000,  coin:4800,   purpleOrb:90,   tealFrag:6,   selectable:4,   karmaA:10,  karmaB:10,  karmaC:3,   select:null, bonus:null },
+  { floor:'Floor 20 - 29', pick1a:6000,   pick1b:2000,  pick2a:36,  pick2b:12,  goldPouch:125,  pinkGem:16000,  coin:6400,   purpleOrb:130,  tealFrag:8,   selectable:6,   karmaA:15,  karmaB:15,  karmaC:4,   select:null, bonus:null },
+  { floor:'Floor 30 - 39', pick1a:7500,   pick1b:2500,  pick2a:45,  pick2b:15,  goldPouch:150,  pinkGem:20000,  coin:8000,   purpleOrb:160,  tealFrag:10,  selectable:8,   karmaA:20,  karmaB:20,  karmaC:6,   select:null, bonus:null },
+  { floor:'Floor 40 - 49', pick1a:10500,  pick1b:3500,  pick2a:66,  pick2b:22,  goldPouch:225,  pinkGem:30000,  coin:12000,  purpleOrb:200,  tealFrag:15,  selectable:10,  karmaA:27,  karmaB:27,  karmaC:8,   select:null, bonus:null },
+  { floor:'Floor 50 - 59', pick1a:15000,  pick1b:5000,  pick2a:90,  pick2b:30,  goldPouch:300,  pinkGem:40000,  coin:16000,  purpleOrb:320,  tealFrag:20,  selectable:15,  karmaA:36,  karmaB:36,  karmaC:10,  select:null, bonus:2 },
+  { floor:'Floor 60 - 69', pick1a:22500,  pick1b:7500,  pick2a:135, pick2b:45,  goldPouch:450,  pinkGem:60000,  coin:24000,  purpleOrb:450,  tealFrag:25,  selectable:20,  karmaA:54,  karmaB:54,  karmaC:15,  select:null, bonus:4 },
+  { floor:'Floor 70 - 79', pick1a:30000,  pick1b:10000, pick2a:174, pick2b:58,  goldPouch:600,  pinkGem:80000,  coin:32000,  purpleOrb:650,  tealFrag:35,  selectable:25,  karmaA:72,  karmaB:72,  karmaC:22,  select:null, bonus:7 },
+  { floor:'Floor 80 - 89', pick1a:45000,  pick1b:15000, pick2a:240, pick2b:80,  goldPouch:850,  pinkGem:108000, coin:44000,  purpleOrb:850,  tealFrag:50,  selectable:35,  karmaA:100, karmaB:100, karmaC:30,  select:null, bonus:10 },
+  { floor:'Floor 90 - 99', pick1a:60000,  pick1b:20000, pick2a:360, pick2b:120, goldPouch:1200, pinkGem:160000, coin:64000,  purpleOrb:1250, tealFrag:80,  selectable:50,  karmaA:144, karmaB:144, karmaC:45,  select:null, bonus:15 },
+  { floor:'Floor 100',     pick1a:105000, pick1b:35000, pick2a:570, pick2b:190, goldPouch:2000, pinkGem:260000, coin:96000,  purpleOrb:2100, tealFrag:120, selectable:80,  karmaA:250, karmaB:250, karmaC:80,  select:null, bonus:20 }
+];
+
+const PARADISE_ILVLS = [1750, 1730, 1700, 1680, 1640];
+
+// --- Netherworld tables: different structure than Hell (coin, random&bound, pick, card x3, karma x3, ring, selectable, select, lv8bound) ---
+const PARADISE_TABLE_NETHERWORLD_1640 = [
+  { floor:'Floor 1 - 9',   coin:16000,  randomBound:2,  pickA:90,   pickB:30,   cardA:null, cardB:null, cardC:1, karmaA:35,  karmaB:35,  karmaC:10,  ring:20,  selectable:10,  select:null, lv8Bound:null },
+  { floor:'Floor 10 - 19', coin:24000,  randomBound:3,  pickA:135,  pickB:45,   cardA:5,    cardB:3,    cardC:1, karmaA:50,  karmaB:50,  karmaC:15,  ring:30,  selectable:20,  select:null, lv8Bound:null },
+  { floor:'Floor 20 - 29', coin:32000,  randomBound:4,  pickA:180,  pickB:60,   cardA:10,   cardB:6,    cardC:1, karmaA:75,  karmaB:75,  karmaC:20,  ring:40,  selectable:30,  select:null, lv8Bound:null },
+  { floor:'Floor 30 - 39', coin:40000,  randomBound:6,  pickA:225,  pickB:75,   cardA:20,   cardB:9,    cardC:1, karmaA:100, karmaB:100, karmaC:30,  ring:50,  selectable:40,  select:null, lv8Bound:null },
+  { floor:'Floor 40 - 49', coin:60000,  randomBound:8,  pickA:330,  pickB:110,  cardA:40,   cardB:12,   cardC:1, karmaA:135, karmaB:135, karmaC:40,  ring:75,  selectable:50,  select:null, lv8Bound:null },
+  { floor:'Floor 50 - 59', coin:80000,  randomBound:10, pickA:450,  pickB:150,  cardA:70,   cardB:18,   cardC:1, karmaA:180, karmaB:180, karmaC:50,  ring:100, selectable:75,  select:null, lv8Bound:null },
+  { floor:'Floor 60 - 69', coin:120000, randomBound:15, pickA:675,  pickB:225,  cardA:100,  cardB:24,   cardC:1, karmaA:270, karmaB:270, karmaC:75,  ring:125, selectable:100, select:null, lv8Bound:null },
+  { floor:'Floor 70 - 79', coin:160000, randomBound:20, pickA:870,  pickB:290,  cardA:150,  cardB:32,   cardC:1, karmaA:360, karmaB:360, karmaC:110, ring:175, selectable:125, select:null, lv8Bound:null },
+  { floor:'Floor 80 - 89', coin:220000, randomBound:25, pickA:1200, pickB:400,  cardA:200,  cardB:42,   cardC:1, karmaA:500, karmaB:500, karmaC:150, ring:250, selectable:175, select:null, lv8Bound:1 },
+  { floor:'Floor 90 - 99', coin:320000, randomBound:36, pickA:1800, pickB:600,  cardA:300,  cardB:60,   cardC:1, karmaA:720, karmaB:720, karmaC:225, ring:400, selectable:250, select:null, lv8Bound:2 },
+  { floor:'Floor 100',     coin:480000, randomBound:60, pickA:2850, pickB:950,  cardA:500,  cardB:80,   cardC:1, karmaA:1250,karmaB:1250,karmaC:400, ring:600, selectable:400, select:null, lv8Bound:3 }
+];
+
+const PARADISE_TABLE_NETHERWORLD_1680 = [
+  { floor:'Floor 1 - 9',   coin:17500,  randomBound:2,  pickA:120,  pickB:40,   cardA:null, cardB:null, cardC:1, karmaA:35,  karmaB:35,  karmaC:20,  ring:30,  selectable:20,  select:null, lv8Bound:null },
+  { floor:'Floor 10 - 19', coin:27500,  randomBound:4,  pickA:180,  pickB:60,   cardA:5,    cardB:3,    cardC:1, karmaA:50,  karmaB:50,  karmaC:30,  ring:40,  selectable:30,  select:null, lv8Bound:null },
+  { floor:'Floor 20 - 29', coin:37500,  randomBound:6,  pickA:225,  pickB:75,   cardA:10,   cardB:6,    cardC:1, karmaA:75,  karmaB:75,  karmaC:45,  ring:50,  selectable:40,  select:null, lv8Bound:null },
+  { floor:'Floor 30 - 39', coin:45000,  randomBound:8,  pickA:300,  pickB:100,  cardA:20,   cardB:9,    cardC:1, karmaA:100, karmaB:100, karmaC:60,  ring:60,  selectable:50,  select:null, lv8Bound:null },
+  { floor:'Floor 40 - 49', coin:67500,  randomBound:10, pickA:450,  pickB:150,  cardA:40,   cardB:12,   cardC:1, karmaA:135, karmaB:135, karmaC:75,  ring:90,  selectable:75,  select:null, lv8Bound:null },
+  { floor:'Floor 50 - 59', coin:90000,  randomBound:12, pickA:600,  pickB:200,  cardA:70,   cardB:18,   cardC:1, karmaA:180, karmaB:180, karmaC:100, ring:125, selectable:100, select:null, lv8Bound:null },
+  { floor:'Floor 60 - 69', coin:135000, randomBound:18, pickA:900,  pickB:300,  cardA:100,  cardB:24,   cardC:1, karmaA:270, karmaB:270, karmaC:150, ring:175, selectable:150, select:null, lv8Bound:null },
+  { floor:'Floor 70 - 79', coin:180000, randomBound:24, pickA:1125, pickB:375,  cardA:150,  cardB:32,   cardC:1, karmaA:360, karmaB:360, karmaC:225, ring:250, selectable:200, select:null, lv8Bound:null },
+  { floor:'Floor 80 - 89', coin:250000, randomBound:36, pickA:1575, pickB:525,  cardA:200,  cardB:42,   cardC:1, karmaA:500, karmaB:500, karmaC:300, ring:350, selectable:300, select:null, lv8Bound:2 },
+  { floor:'Floor 90 - 99', coin:370000, randomBound:48, pickA:2325, pickB:775,  cardA:300,  cardB:60,   cardC:1, karmaA:720, karmaB:720, karmaC:450, ring:450, selectable:400, select:null, lv8Bound:3 },
+  { floor:'Floor 100',     coin:540000, randomBound:80, pickA:3840, pickB:1280, cardA:500,  cardB:80,   cardC:1, karmaA:1250,karmaB:1250,karmaC:750, ring:750, selectable:600, select:null, lv8Bound:4 }
+];
+
+const PARADISE_TABLE_NETHERWORLD_1700 = [
+  { floor:'Floor 1 - 9',   coin:20000,  randomBound:3,  pickA:135,  pickB:45,   cardA:null, cardB:null, cardC:1, karmaA:35,  karmaB:35,  karmaC:30,  ring:35,  selectable:30,  select:5,  lv8Bound:null },
+  { floor:'Floor 10 - 19', coin:30000,  randomBound:5,  pickA:195,  pickB:65,   cardA:5,    cardB:3,    cardC:1, karmaA:50,  karmaB:50,  karmaC:45,  ring:45,  selectable:40,  select:10, lv8Bound:null },
+  { floor:'Floor 20 - 29', coin:40000,  randomBound:7,  pickA:270,  pickB:90,   cardA:10,   cardB:6,    cardC:1, karmaA:75,  karmaB:75,  karmaC:60,  ring:60,  selectable:50,  select:15, lv8Bound:null },
+  { floor:'Floor 30 - 39', coin:50000,  randomBound:9,  pickA:345,  pickB:115,  cardA:20,   cardB:9,    cardC:1, karmaA:100, karmaB:100, karmaC:75,  ring:75,  selectable:60,  select:20, lv8Bound:null },
+  { floor:'Floor 40 - 49', coin:70000,  randomBound:12, pickA:495,  pickB:165,  cardA:40,   cardB:12,   cardC:1, karmaA:135, karmaB:135, karmaC:100, ring:110, selectable:90,  select:25, lv8Bound:null },
+  { floor:'Floor 50 - 59', coin:100000, randomBound:15, pickA:675,  pickB:225,  cardA:70,   cardB:18,   cardC:1, karmaA:180, karmaB:180, karmaC:150, ring:150, selectable:120, select:30, lv8Bound:null },
+  { floor:'Floor 60 - 69', coin:150000, randomBound:20, pickA:975,  pickB:325,  cardA:100,  cardB:24,   cardC:1, karmaA:270, karmaB:270, karmaC:225, ring:200, selectable:180, select:35, lv8Bound:null },
+  { floor:'Floor 70 - 79', coin:210000, randomBound:30, pickA:1275, pickB:425,  cardA:150,  cardB:32,   cardC:1, karmaA:360, karmaB:360, karmaC:300, ring:275, selectable:240, select:40, lv8Bound:null },
+  { floor:'Floor 80 - 89', coin:300000, randomBound:45, pickA:1800, pickB:600,  cardA:200,  cardB:42,   cardC:1, karmaA:500, karmaB:500, karmaC:400, ring:375, selectable:300, select:45, lv8Bound:3 },
+  { floor:'Floor 90 - 99', coin:400000, randomBound:60, pickA:2550, pickB:850,  cardA:300,  cardB:60,   cardC:1, karmaA:720, karmaB:720, karmaC:600, ring:550, selectable:450, select:50, lv8Bound:4 },
+  { floor:'Floor 100',     coin:575000, randomBound:90, pickA:4200, pickB:1400, cardA:500,  cardB:80,   cardC:1, karmaA:1250,karmaB:1250,karmaC:1000,ring:900, selectable:750, select:55, lv8Bound:5 }
+];
+
+const PARADISE_TABLE_NETHERWORLD_1730 = [
+  { floor:'Floor 1 - 9',   coin:22500,  randomBound:4,  pickA:150,  pickB:50,   cardA:null, cardB:null, cardC:1, karmaA:35,  karmaB:35,  karmaC:35,  ring:40,  selectable:40,  select:10, lv8Bound:null },
+  { floor:'Floor 10 - 19', coin:36000,  randomBound:6,  pickA:225,  pickB:75,   cardA:5,    cardB:3,    cardC:1, karmaA:50,  karmaB:50,  karmaC:60,  ring:50,  selectable:50,  select:25, lv8Bound:null },
+  { floor:'Floor 20 - 29', coin:47500,  randomBound:8,  pickA:300,  pickB:100,  cardA:10,   cardB:6,    cardC:1, karmaA:75,  karmaB:75,  karmaC:75,  ring:65,  selectable:75,  select:35, lv8Bound:null },
+  { floor:'Floor 30 - 39', coin:60000,  randomBound:10, pickA:375,  pickB:125,  cardA:20,   cardB:9,    cardC:1, karmaA:100, karmaB:100, karmaC:90,  ring:80,  selectable:100, select:50, lv8Bound:null },
+  { floor:'Floor 40 - 49', coin:80000,  randomBound:15, pickA:540,  pickB:180,  cardA:40,   cardB:12,   cardC:1, karmaA:135, karmaB:135, karmaC:135, ring:120, selectable:125, select:75, lv8Bound:null },
+  { floor:'Floor 50 - 59', coin:110000, randomBound:20, pickA:720,  pickB:240,  cardA:70,   cardB:18,   cardC:1, karmaA:180, karmaB:180, karmaC:180, ring:160, selectable:150, select:5,  lv8Bound:null },
+  { floor:'Floor 60 - 69', coin:160000, randomBound:27, pickA:1080, pickB:360,  cardA:100,  cardB:24,   cardC:1, karmaA:270, karmaB:270, karmaC:270, ring:210, selectable:225, select:10, lv8Bound:null },
+  { floor:'Floor 70 - 79', coin:225000, randomBound:35, pickA:1440, pickB:480,  cardA:150,  cardB:32,   cardC:1, karmaA:360, karmaB:360, karmaC:360, ring:300, selectable:300, select:15, lv8Bound:null },
+  { floor:'Floor 80 - 89', coin:325000, randomBound:50, pickA:1980, pickB:660,  cardA:200,  cardB:42,   cardC:1, karmaA:500, karmaB:500, karmaC:500, ring:400, selectable:400, select:20, lv8Bound:4 },
+  { floor:'Floor 90 - 99', coin:425000, randomBound:70, pickA:2880, pickB:960,  cardA:300,  cardB:60,   cardC:1, karmaA:720, karmaB:720, karmaC:750, ring:600, selectable:600, select:25, lv8Bound:5 },
+  { floor:'Floor 100',     coin:650000, randomBound:100,pickA:4800, pickB:1600, cardA:500,  cardB:80,   cardC:1, karmaA:1250,karmaB:1250,karmaC:1200,ring:1000,selectable:1000,select:30, lv8Bound:6 }
+];
+
+const PARADISE_TABLE_NETHERWORLD_1750 = [
+  { floor:'Floor 1 - 9',   coin:27500,  randomBound:5,  pickA:180,  pickB:60,   cardA:null, cardB:null, cardC:1, karmaA:45,  karmaB:45,  karmaC:35,  ring:35,  selectable:35,  select:15, lv8Bound:null },
+  { floor:'Floor 10 - 19', coin:41000,  randomBound:7,  pickA:270,  pickB:90,   cardA:5,    cardB:3,    cardC:1, karmaA:50,  karmaB:50,  karmaC:65,  ring:60,  selectable:60,  select:30, lv8Bound:null },
+  { floor:'Floor 20 - 29', coin:55000,  randomBound:9,  pickA:360,  pickB:120,  cardA:10,   cardB:6,    cardC:1, karmaA:75,  karmaB:75,  karmaC:90,  ring:75,  selectable:90,  select:40, lv8Bound:null },
+  { floor:'Floor 30 - 39', coin:72000,  randomBound:12, pickA:450,  pickB:150,  cardA:20,   cardB:9,    cardC:1, karmaA:100, karmaB:100, karmaC:120, ring:90,  selectable:125, select:60, lv8Bound:null },
+  { floor:'Floor 40 - 49', coin:96000,  randomBound:18, pickA:600,  pickB:200,  cardA:40,   cardB:12,   cardC:1, karmaA:135, karmaB:135, karmaC:165, ring:135, selectable:165, select:5,  lv8Bound:null },
+  { floor:'Floor 50 - 59', coin:132000, randomBound:24, pickA:900,  pickB:300,  cardA:70,   cardB:18,   cardC:1, karmaA:180, karmaB:180, karmaC:225, ring:180, selectable:225, select:10, lv8Bound:null },
+  { floor:'Floor 60 - 69', coin:192000, randomBound:32, pickA:1350, pickB:450,  cardA:100,  cardB:24,   cardC:1, karmaA:270, karmaB:270, karmaC:360, ring:225, selectable:300, select:15, lv8Bound:null },
+  { floor:'Floor 70 - 79', coin:270000, randomBound:42, pickA:1950, pickB:650,  cardA:150,  cardB:32,   cardC:1, karmaA:360, karmaB:360, karmaC:450, ring:325, selectable:400, select:20, lv8Bound:null },
+  { floor:'Floor 80 - 89', coin:390000, randomBound:60, pickA:2700, pickB:900,  cardA:200,  cardB:42,   cardC:1, karmaA:500, karmaB:500, karmaC:600, ring:450, selectable:550, select:25, lv8Bound:5 },
+  { floor:'Floor 90 - 99', coin:570000, randomBound:85, pickA:3900, pickB:1300, cardA:300,  cardB:60,   cardC:1, karmaA:720, karmaB:720, karmaC:900, ring:650, selectable:750, select:30, lv8Bound:6 },
+  { floor:'Floor 100',     coin:780000, randomBound:120,pickA:5700, pickB:1900, cardA:500,  cardB:80,   cardC:1, karmaA:1250,karmaB:1250,karmaC:1500,ring:1100,selectable:1100,select:35, lv8Bound:7 }
+];
+
+// PARADISE_TABLES[category][ilvl] = array of floor rows, or null if not entered yet.
+const PARADISE_TABLES = {
+  hell: {
+    1750: PARADISE_TABLE_1750,
+    1730: PARADISE_TABLE_HELL_1730,
+    1700: PARADISE_TABLE_HELL_1700,
+    1680: PARADISE_TABLE_HELL_1680,
+    1640: PARADISE_TABLE_HELL_1640
+  },
+  netherworld: {
+    1750: PARADISE_TABLE_NETHERWORLD_1750,
+    1730: PARADISE_TABLE_NETHERWORLD_1730,
+    1700: PARADISE_TABLE_NETHERWORLD_1700,
+    1680: PARADISE_TABLE_NETHERWORLD_1680,
+    1640: PARADISE_TABLE_NETHERWORLD_1640
+  }
+};
+
+let paradiseCategory = 'hell';
+let paradiseIlvl = 1750;
+
 
 const DIFF_COLOR = {
   'Level 3': 'pink', 'Level 2': 'pink', 'Level 1': 'pink',
@@ -745,12 +1220,23 @@ function showToast(msg){
    TABS
    ========================================================= */
 function initTabs(){
-  document.querySelectorAll('.tab-btn').forEach(btn => {
+  document.querySelectorAll('#tabNav .tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('#tabNav .tab-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
       btn.classList.add('active');
       document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+}
+
+function initRewardSubtabs(){
+  document.querySelectorAll('#rewardSubnav .tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#rewardSubnav .tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.reward-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('rewardpanel-' + btn.dataset.rewardTab).classList.add('active');
     });
   });
 }
@@ -1077,6 +1563,492 @@ function raidSlotHtml(c, rid){
   </div>`;
 }
 
+/* =========================================================
+   REWARDS TAB
+   ========================================================= */
+const TIER_ORDER_FULL = ['Tier 4.5', 'Tier 4', 'Tier 3', 'Tier 2'];
+
+function fmtCell(v){
+  if(v === null || v === undefined || v === 0) return '<span class="cell-empty">—</span>';
+  return formatGold(v);
+}
+
+function fmtIconCell(kind, v, digits){
+  if(v === null || v === undefined || v === 0){
+    const w = digits ? ` style="width:${numChWidth(digits)}ch"` : '';
+    return `<span class="res-chip">${resIcon(kind)}<span class="cell-empty"${w}>—</span></span>`;
+  }
+  return resChip(kind, v, digits);
+}
+
+const FT_DIGITS = {
+  gold:5, mainMat:3, clearMedal:4, destinyStone:2, destructionStones:4, guardianStones:4,
+  shards:5, leapstones:2, bidMainMat:2, chestCost:5, chestMainMat:3, chestDestructionStones:4,
+  chestGuardianStones:4, chestShards:5, chestLeapstones:3, chestCardPack:1
+};
+
+function fullRaidGateRow(entry, gate, isFirst, rowspan){
+  const dc = diffColorVar(entry.difficulty);
+  const leadCells = isFirst ? `
+    <td class="ft-raid" rowspan="${rowspan}">${escapeAttr(entry.raid)}</td>
+    <td class="ft-diff" rowspan="${rowspan}"><span class="rr-diff-badge" style="background:${dc.bg}; color:${dc.fg};">${escapeAttr(entry.difficulty)}</span></td>
+    <td class="num ft-ilvl" rowspan="${rowspan}">${entry.ilvl}</td>
+  ` : '';
+  return `<tr class="ft-gate-row">
+    ${leadCells}
+    <td class="ft-gate">${escapeAttr(gate.gate)}</td>
+    <td class="num">${fmtIconCell('gold', gate.gold, FT_DIGITS.gold)}</td>
+    <td class="num">${fmtIconCell('gold', gate.rosterGold, FT_DIGITS.gold)}</td>
+    <td class="num">${fmtIconCell('gold', gate.charGold, FT_DIGITS.gold)}</td>
+    <td class="num">${fmtIconCell('main_materials', gate.mainMat, FT_DIGITS.mainMat)}</td>
+    <td class="num">${fmtIconCell('clear_medal', gate.clearMedal, FT_DIGITS.clearMedal)}</td>
+    <td class="num">${fmtIconCell('destiny_stone', gate.destinyStone, FT_DIGITS.destinyStone)}</td>
+    <td class="num">${fmtIconCell('destruction_stone', gate.destructionStones, FT_DIGITS.destructionStones)}</td>
+    <td class="num">${fmtIconCell('guardian_stone', gate.guardianStones, FT_DIGITS.guardianStones)}</td>
+    <td class="num">${fmtIconCell('shard', gate.shards, FT_DIGITS.shards)}</td>
+    <td class="num">${fmtIconCell('leapstone', gate.leapstones, FT_DIGITS.leapstones)}</td>
+    <td class="num ft-sep">${fmtIconCell('main_materials', gate.bidMainMat, FT_DIGITS.bidMainMat)}</td>
+    <td class="num">${fmtIconCell('gold', gate.chestCost, FT_DIGITS.chestCost)}</td>
+    <td class="num ft-sep">${fmtIconCell('main_materials', gate.chestMainMat, FT_DIGITS.chestMainMat)}</td>
+    <td class="num">${fmtIconCell('destruction_stone', gate.chestDestructionStones, FT_DIGITS.chestDestructionStones)}</td>
+    <td class="num">${fmtIconCell('guardian_stone', gate.chestGuardianStones, FT_DIGITS.chestGuardianStones)}</td>
+    <td class="num">${fmtIconCell('shard', gate.chestShards, FT_DIGITS.chestShards)}</td>
+    <td class="num">${fmtIconCell('leapstone', gate.chestLeapstones, FT_DIGITS.chestLeapstones)}</td>
+    <td class="num">${fmtIconCell('card_pack', gate.chestCardPack, FT_DIGITS.chestCardPack)}</td>
+  </tr>`;
+}
+
+function sumGates(gates, field){
+  return gates.reduce((s, g) => s + (g[field] || 0), 0);
+}
+
+function fullRaidTotalRow(entry){
+  const g = entry.gates;
+  return `<tr class="ft-total-row">
+    <td class="ft-gate">Total</td>
+    <td class="num">${fmtIconCell('gold', sumGates(g,'gold'), FT_DIGITS.gold)}</td>
+    <td class="num">${fmtIconCell('gold', sumGates(g,'rosterGold'), FT_DIGITS.gold)}</td>
+    <td class="num">${fmtIconCell('gold', sumGates(g,'charGold'), FT_DIGITS.gold)}</td>
+    <td class="num">${fmtIconCell('main_materials', sumGates(g,'mainMat'), FT_DIGITS.mainMat)}</td>
+    <td class="num">${fmtIconCell('clear_medal', sumGates(g,'clearMedal'), FT_DIGITS.clearMedal)}</td>
+    <td class="num">${fmtIconCell('destiny_stone', sumGates(g,'destinyStone'), FT_DIGITS.destinyStone)}</td>
+    <td class="num">${fmtIconCell('destruction_stone', sumGates(g,'destructionStones'), FT_DIGITS.destructionStones)}</td>
+    <td class="num">${fmtIconCell('guardian_stone', sumGates(g,'guardianStones'), FT_DIGITS.guardianStones)}</td>
+    <td class="num">${fmtIconCell('shard', sumGates(g,'shards'), FT_DIGITS.shards)}</td>
+    <td class="num">${fmtIconCell('leapstone', sumGates(g,'leapstones'), FT_DIGITS.leapstones)}</td>
+    <td class="num ft-sep">${fmtIconCell('main_materials', sumGates(g,'bidMainMat'), FT_DIGITS.bidMainMat)}</td>
+    <td class="num">${fmtIconCell('gold', sumGates(g,'chestCost'), FT_DIGITS.chestCost)}</td>
+    <td class="num ft-sep">${fmtIconCell('main_materials', sumGates(g,'chestMainMat'), FT_DIGITS.chestMainMat)}</td>
+    <td class="num">${fmtIconCell('destruction_stone', sumGates(g,'chestDestructionStones'), FT_DIGITS.chestDestructionStones)}</td>
+    <td class="num">${fmtIconCell('guardian_stone', sumGates(g,'chestGuardianStones'), FT_DIGITS.chestGuardianStones)}</td>
+    <td class="num">${fmtIconCell('shard', sumGates(g,'chestShards'), FT_DIGITS.chestShards)}</td>
+    <td class="num">${fmtIconCell('leapstone', sumGates(g,'chestLeapstones'), FT_DIGITS.chestLeapstones)}</td>
+    <td class="num">${fmtIconCell('card_pack', sumGates(g,'chestCardPack'), FT_DIGITS.chestCardPack)}</td>
+  </tr>`;
+}
+
+function fullRaidTableHeadHtml(){
+  const iconTh = (kind, label) => `<th class="num ft-icon-th"><span class="th-chip"><img class="res-icon" src="${RES_ICON_SRC[kind]}" alt="${escapeAttr(label)}"><span>${escapeAttr(label)}</span></span></th>`;
+  return `
+  <thead>
+    <tr class="ft-group-row">
+      <th colspan="4"></th>
+      <th colspan="10" class="ft-group-th">Clear rewards</th>
+      <th colspan="2" class="ft-group-th">Box</th>
+      <th colspan="6" class="ft-group-th">Chest rewards</th>
+    </tr>
+    <tr>
+      <th>Raid</th><th>Difficulty</th><th class="num">Ilvl</th><th>Gate</th>
+      ${iconTh('gold','Gold')}
+      ${iconTh('gold','Roster')}
+      ${iconTh('gold','Char')}
+      ${iconTh('main_materials','Mats')}
+      ${iconTh('clear_medal','Medal')}
+      ${iconTh('destiny_stone','Destiny')}
+      ${iconTh('destruction_stone','Destr.')}
+      ${iconTh('guardian_stone','Guard.')}
+      ${iconTh('shard','Shards')}
+      ${iconTh('leapstone','Leap')}
+      <th class="num ft-icon-th ft-sep"><span class="th-chip"><img class="res-icon" src="${RES_ICON_SRC.main_materials}" alt="Mats"><span>Mats</span></span></th>
+      <th class="num ft-icon-th"><span class="th-chip"><img class="res-icon" src="${RES_ICON_SRC.gold}" alt="Chest cost"><span>Cost</span></span></th>
+      <th class="num ft-icon-th ft-sep"><span class="th-chip"><img class="res-icon" src="${RES_ICON_SRC.main_materials}" alt="Mats"><span>Mats</span></span></th>
+      ${iconTh('destruction_stone','Destr.')}
+      ${iconTh('guardian_stone','Guard.')}
+      ${iconTh('shard','Shards')}
+      ${iconTh('leapstone','Leap')}
+      ${iconTh('card_pack','Card')}
+    </tr>
+  </thead>`;
+}
+
+function fullRaidTableHtml(tier, entries){
+  const rows = entries.map(entry => {
+    const gateRows = entry.gates.map((g, i) => fullRaidGateRow(entry, g, i === 0, entry.gates.length + 1)).join('');
+    const totalRow = fullRaidTotalRow(entry);
+    return gateRows + totalRow;
+  }).join('');
+
+  return `
+  <div class="tier-block">
+    <div class="tier-block-title">${escapeAttr(tier)}<span class="line"></span></div>
+    <div class="reward-table-wrap">
+      <table class="reward-table full-raid-table ft-wide">
+        ${fullRaidTableHeadHtml()}
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+function renderRaidRewards(){
+  const wrap = document.getElementById('raidRewardsWrap');
+  if(!wrap) return;
+
+  const byTier = {};
+  RAID_FULL_DATA.forEach(e => {
+    if(!byTier[e.tier]) byTier[e.tier] = [];
+    byTier[e.tier].push(e);
+  });
+
+  const tiers = TIER_ORDER_FULL.filter(t => byTier[t]).concat(Object.keys(byTier).filter(t => !TIER_ORDER_FULL.includes(t)));
+
+  wrap.innerHTML = tiers.map(tier => fullRaidTableHtml(tier, byTier[tier])).join('');
+}
+
+function chaosTableHtml(entries){
+  const rows = entries.map(c => `<tr>
+      <td class="ft-raid">${escapeAttr(c.zone)}</td>
+      <td class="num ft-ilvl">${c.ilvl}</td>
+      <td class="num">${resChip('destruction_stone', c.destructionStones, 3)}</td>
+      <td class="num">${resChip('guardian_stone', c.guardianStones, 4)}</td>
+      <td class="num">${resChip('leapstone', c.leapstones, 2)}</td>
+      <td class="num">${resChip('shard', c.shards, 5)}</td>
+      <td class="num">${resChip('silver', c.silver, 6)}</td>
+    </tr>`).join('');
+  const iconTh = (kind, label) => `<th class="num ft-icon-th"><span class="th-chip"><img class="res-icon" src="${RES_ICON_SRC[kind]}" alt="${escapeAttr(label)}"><span>${escapeAttr(label)}</span></span></th>`;
+  return `
+  <div class="reward-table-wrap">
+    <table class="reward-table full-raid-table">
+      <thead>
+        <tr class="ft-group-row">
+          <th colspan="2"></th>
+          <th colspan="5" class="ft-group-th">Clear rewards</th>
+        </tr>
+        <tr>
+          <th>Zone</th><th class="num">Ilvl</th>
+          ${iconTh('destruction_stone','Destr.')}
+          ${iconTh('guardian_stone','Guard.')}
+          ${iconTh('leapstone','Leap')}
+          ${iconTh('shard','Shards')}
+          ${iconTh('silver','Silver')}
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+function resChipText(kind, text){
+  return `<span class="res-chip">${resIcon(kind)}<span class="res-num">${escapeAttr(text)}</span></span>`;
+}
+
+function guardianTableHtml(entries){
+  const rows = entries.map(g => `<tr>
+      <td class="ft-raid">${escapeAttr(g.name)}</td>
+      <td class="num ft-ilvl">${g.ilvl}</td>
+      <td class="num">${resChipText('gems', g.gems)}</td>
+      <td class="num">${resChip('gem_shard', g.gemShards, 2)}</td>
+      <td class="num">${resChipText('accessory', g.accessories)}</td>
+      <td class="num">${resChip('bracelet', g.bracelets, 2)}</td>
+      <td class="num">${resChipText('ability_stone', g.abilityStones)}</td>
+      <td class="num">${resChip('silver', g.silver, 5)}</td>
+    </tr>`).join('');
+  const iconTh = (kind, label) => `<th class="num ft-icon-th"><span class="th-chip"><img class="res-icon" src="${RES_ICON_SRC[kind]}" alt="${escapeAttr(label)}"><span>${escapeAttr(label)}</span></span></th>`;
+  return `
+  <div class="reward-table-wrap">
+    <table class="reward-table full-raid-table">
+      <thead>
+        <tr class="ft-group-row">
+          <th colspan="2"></th>
+          <th colspan="6" class="ft-group-th">Clear rewards</th>
+        </tr>
+        <tr>
+          <th>Guardian</th><th class="num">Ilvl</th>
+          ${iconTh('gems','T4 Gems')}
+          ${iconTh('gem_shard','Shards')}
+          ${iconTh('accessory','Bracelet')}
+          ${iconTh('bracelet','Access.')}
+          ${iconTh('ability_stone','Ability')}
+          ${iconTh('silver','Silver')}
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+function renderChaosGuardianRewards(){
+  const wrap = document.getElementById('chaosGuardianWrap');
+  if(!wrap) return;
+
+  const chaosSorted = CHAOS_DATA.slice().sort((a,b) => b.ilvl - a.ilvl);
+  const guardianSorted = GUARDIAN_DATA.slice().sort((a,b) => b.ilvl - a.ilvl);
+
+  wrap.innerHTML = `
+    <div class="cg-side-by-side">
+      <div class="cg-col">
+        <div class="cg-sub-title">Chaos Dungeon</div>
+        ${chaosSorted.length ? chaosTableHtml(chaosSorted) : '<div class="empty-state">No entries at this ilvl</div>'}
+      </div>
+      <div class="cg-col">
+        <div class="cg-sub-title">Guardian Raid</div>
+        ${guardianSorted.length ? guardianTableHtml(guardianSorted) : '<div class="empty-state">No entries at this ilvl</div>'}
+      </div>
+    </div>`;
+}
+
+function renderRewardsTab(){
+  renderRaidRewards();
+  renderChaosGuardianRewards();
+  renderParadiseRewards();
+}
+
+const RES_ICON_SRC = {
+  destruction_stone: RES_ICON_DESTRUCTION_STONE,
+  guardian_stone: RES_ICON_GUARDIAN_STONE,
+  leapstone: RES_ICON_LEAPSTONE,
+  shard: RES_ICON_SHARD,
+  silver: RES_ICON_SILVER,
+  accessory: RES_ICON_ACCESSORY,
+  gold: RES_ICON_GOLD,
+  roster_gold: RES_ICON_ROSTER_GOLD,
+  char_gold: RES_ICON_CHAR_GOLD,
+  main_materials: RES_ICON_MAIN_MATERIALS,
+  clear_medal: RES_ICON_CLEAR_MEDAL,
+  destiny_stone: RES_ICON_DESTINY_STONE,
+  card_pack: RES_ICON_CARD_PACK,
+  gems: RES_ICON_GEMS,
+  gem_shard: RES_ICON_GEM_SHARD,
+  bracelet: RES_ICON_BRACELET,
+  ability_stone: RES_ICON_ABILITY_STONE
+};
+
+function resIcon(kind){
+  const src = RES_ICON_SRC[kind];
+  if(!src) return '';
+  return `<img class="res-icon" src="${src}" alt="${escapeAttr(kind)}">`;
+}
+
+function numChWidth(digits){
+  // account for thousand-separator characters formatGold adds
+  return digits + Math.max(0, Math.floor((digits - 1) / 3));
+}
+
+function resChip(kind, value, digits){
+  const w = digits ? ` style="width:${numChWidth(digits)}ch"` : '';
+  return `<span class="res-chip">${resIcon(kind)}<span class="res-num"${w}>${formatGold(value)}</span></span>`;
+}
+
+/* =========================================================
+   PARADISE — icons loaded from paradise-icons.json (same folder as this file)
+   ========================================================= */
+const PARADISE_ICONS_URL = 'paradise-icons.json';
+// paradiseIcons[tableKey][slotKey] = data URL. tableKey = "<category>_<ilvl>", e.g. "hell_1750".
+let paradiseIcons = {};
+
+function paradiseTableKey(category, ilvl){
+  return `${category}_${ilvl}`;
+}
+
+function currentParadiseTableKey(){
+  return paradiseTableKey(paradiseCategory, paradiseIlvl);
+}
+
+function currentParadiseIconSet(){
+  const tk = currentParadiseTableKey();
+  return paradiseIcons[tk] || {};
+}
+
+async function loadParadiseIcons(){
+  try{
+    const res = await fetch(PARADISE_ICONS_URL, { cache: 'no-cache' });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    paradiseIcons = (data && typeof data === 'object' && data.tables && typeof data.tables === 'object')
+      ? data.tables
+      : (data || {});
+  }catch(e){
+    console.warn('Could not load paradise-icons.json — falling back to placeholder icons.', e);
+    paradiseIcons = {};
+  }
+}
+
+function paradiseIconHtml(key){
+  const src = currentParadiseIconSet()[key];
+  if(src) return `<img class="res-icon" src="${src}" alt="${escapeAttr(key)}">`;
+  const slot = allParadiseIconSlots().find(s => s.key === key);
+  const tint = slot ? slot.tint : 'muted';
+  return `<span class="res-icon paradise-icon-placeholder" data-tint="${tint}"></span>`;
+}
+
+function paradiseChip(key, value){
+  if(value === null || value === undefined) return `<span class="res-chip">${paradiseIconHtml(key)}<span class="cell-empty">—</span></span>`;
+  return `<span class="res-chip">${paradiseIconHtml(key)}<span class="res-num">${formatGold(value)}</span></span>`;
+}
+
+function paradiseStackCell(pairs){
+  // pairs: [[key, value], ...] stacked vertically in one cell
+  const rows = pairs.map(([key, value]) => `<div class="paradise-stack-row">${paradiseChip(key, value)}</div>`).join('');
+  return `<div class="paradise-stack">${rows}</div>`;
+}
+
+function paradiseIconThMulti(keys, label){
+  // column header icon cluster for columns holding several items — icons nudge in
+  // diagonally so they sit almost on top of each other (see reference screenshot)
+  const size = 13, step = 6, dy = 4;
+  const n = keys.length;
+  const w = size + (n - 1) * step;
+  const h = size + (n - 1) * dy;
+  const imgs = keys.map((key, i) => {
+    const top = i * dy, left = i * step, z = n - i;
+    return `<span class="icon-overlap-item" style="top:${top}px;left:${left}px;z-index:${z};">${paradiseIconHtml(key)}</span>`;
+  }).join('');
+  return `<th class="num ft-icon-th"><span class="th-chip"><span class="icon-overlap" style="width:${w}px;height:${h}px;">${imgs}</span><span>${escapeAttr(label)}</span></span></th>`;
+}
+
+function hellTableHtml(data, title){
+  const rows = data.map(f => `<tr>
+      <td class="ft-raid">${escapeAttr(f.floor)}</td>
+      <td class="num">${paradiseStackCell([['pick1_a', f.pick1a], ['pick1_b', f.pick1b]])}</td>
+      <td class="num">${paradiseStackCell([['pick2_a', f.pick2a], ['pick2_b', f.pick2b]])}</td>
+      <td class="num">${paradiseChip('gold_pouch', f.goldPouch)}</td>
+      <td class="num">${paradiseChip('pink_gem', f.pinkGem)}</td>
+      <td class="num">${paradiseChip('coin', f.coin)}</td>
+      <td class="num">${paradiseChip('purple_orb', f.purpleOrb)}</td>
+      <td class="num">${paradiseChip('teal_frag', f.tealFrag)}</td>
+      <td class="num">${paradiseChip('selectable', f.selectable)}</td>
+      <td class="num">${paradiseStackCell([['karma_a', f.karmaA], ['karma_b', f.karmaB], ['karma_c', f.karmaC]])}</td>
+      <td class="num">${paradiseChip('select', f.select)}</td>
+      <td class="num">${f.bonus !== null ? paradiseChip('bonus', f.bonus) : '<span class="cell-empty">—</span>'}</td>
+    </tr>`).join('');
+
+  const iconTh = (key, label) => `<th class="num ft-icon-th"><span class="th-chip">${paradiseIconHtml(key)}<span>${escapeAttr(label)}</span></span></th>`;
+
+  return `
+  <div class="reward-table-wrap">
+    <table class="reward-table full-raid-table">
+      <thead>
+        <tr class="ft-group-row">
+          <th colspan="1"></th>
+          <th colspan="11" class="ft-group-th">${escapeAttr(title)}</th>
+        </tr>
+        <tr>
+          <th>Floor</th>
+          ${paradiseIconThMulti(['pick1_a','pick1_b'],'Blues & Reds')}
+          ${paradiseIconThMulti(['pick2_a','pick2_b'],'Juicers')}
+          ${iconTh('gold_pouch','Fusions')}
+          ${iconTh('pink_gem','Leapstones')}
+          ${iconTh('coin','Gold')}
+          ${iconTh('purple_orb','Free Taps')}
+          ${iconTh('teal_frag','Bracelets')}
+          ${iconTh('selectable','Ability Stones')}
+          ${paradiseIconThMulti(['karma_a','karma_b','karma_c'],'Quality / Karma')}
+          ${iconTh('select','Astro Gems')}
+          ${iconTh('bonus','Elysian Tickets')}
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+function netherworldTableHtml(data, title){
+  const rows = data.map(f => `<tr>
+      <td class="ft-raid">${escapeAttr(f.floor)}</td>
+      <td class="num">${paradiseChip('nw_coin', f.coin)}</td>
+      <td class="num">${paradiseChip('nw_random_bound', f.randomBound)}</td>
+      <td class="num">${paradiseStackCell([['nw_pick_a', f.pickA], ['nw_pick_b', f.pickB]])}</td>
+      <td class="num">${paradiseStackCell([['nw_card_a', f.cardA], ['nw_card_b', f.cardB], ['nw_card_c', f.cardC]])}</td>
+      <td class="num">${paradiseStackCell([['nw_karma_a', f.karmaA], ['nw_karma_b', f.karmaB], ['nw_karma_c', f.karmaC]])}</td>
+      <td class="num">${paradiseChip('nw_ring', f.ring)}</td>
+      <td class="num">${paradiseChip('nw_selectable', f.selectable)}</td>
+      <td class="num">${f.select !== null ? paradiseChip('nw_select', f.select) : '<span class="cell-empty">—</span>'}</td>
+      <td class="num">${f.lv8Bound !== null ? paradiseChip('nw_lv8_bound', f.lv8Bound) : '<span class="cell-empty">—</span>'}</td>
+    </tr>`).join('');
+
+  const iconTh = (key, label) => `<th class="num ft-icon-th"><span class="th-chip">${paradiseIconHtml(key)}<span>${escapeAttr(label)}</span></span></th>`;
+
+  return `
+  <div class="reward-table-wrap">
+    <table class="reward-table full-raid-table">
+      <thead>
+        <tr class="ft-group-row">
+          <th colspan="1"></th>
+          <th colspan="9" class="ft-group-th">${escapeAttr(title)}</th>
+        </tr>
+        <tr>
+          <th>Floor</th>
+          ${iconTh('nw_coin','Gold')}
+          ${iconTh('nw_random_bound','Engravings')}
+          ${paradiseIconThMulti(['nw_pick_a','nw_pick_b'],'Juicers')}
+          ${paradiseIconThMulti(['nw_card_a','nw_card_b','nw_card_c'],'Card Packs')}
+          ${paradiseIconThMulti(['nw_karma_a','nw_karma_b','nw_karma_c'],'Quality / Karma')}
+          ${iconTh('nw_ring','Bracelets')}
+          ${iconTh('nw_selectable','Ability Stones')}
+          ${iconTh('nw_select','Astro Gems')}
+          ${iconTh('nw_lv8_bound','Lv. 8 (Bound)')}
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+function paradiseCategoryLabel(cat){
+  return cat === 'netherworld' ? 'Netherworld' : 'Hell';
+}
+
+function renderParadiseTable(){
+  const wrap = document.getElementById('paradiseRewardsWrap');
+  if(!wrap) return;
+  const catLabel = paradiseCategoryLabel(paradiseCategory);
+  const data = PARADISE_TABLES[paradiseCategory] && PARADISE_TABLES[paradiseCategory][paradiseIlvl];
+  if(!data){
+    wrap.innerHTML = `<div class="empty-state">No table entered yet for ${escapeAttr(catLabel)} · ${paradiseIlvl} ilvl.</div>`;
+    return;
+  }
+  const title = `${catLabel} Rewards · Item Level ${paradiseIlvl}`;
+  wrap.innerHTML = paradiseCategory === 'netherworld'
+    ? netherworldTableHtml(data, title)
+    : hellTableHtml(data, title);
+}
+
+function initParadiseNav(){
+  document.querySelectorAll('#paradiseCategorySubnav .tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#paradiseCategorySubnav .tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      paradiseCategory = btn.dataset.paradiseCategory;
+      renderParadiseTable();
+    });
+  });
+  const sel = document.getElementById('paradiseIlvlSelect');
+  if(sel){
+    sel.value = String(paradiseIlvl);
+    sel.addEventListener('change', () => {
+      paradiseIlvl = parseInt(sel.value, 10);
+      renderParadiseTable();
+    });
+  }
+}
+
+async function renderParadiseRewards(){
+  initParadiseNav();
+  renderParadiseTable(); // render immediately with placeholder icons, then swap in real ones once loaded
+  await loadParadiseIcons();
+  renderParadiseTable();
+}
+
 function attachHomeListeners(){
   document.querySelectorAll('.raid-slot[data-action="toggle-cleared"]').forEach(el => {
     const toggleClear = () => {
@@ -1212,12 +2184,14 @@ function init(){
   document.getElementById('btnAddChar').addEventListener('click', addCharacter);
 
   initTabs();
+  initRewardSubtabs();
   initMenu();
   initToolbarActions();
 
   checkReset(false);
   renderCharacterTable();
   renderHome();
+  renderRewardsTab();
 
   setInterval(() => checkReset(true), 60000);
   setInterval(updateResetNote, 30000);
